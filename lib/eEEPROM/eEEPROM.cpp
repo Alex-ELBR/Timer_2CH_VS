@@ -20,8 +20,6 @@ HAL_StatusTypeDef eEEPROM::write_timer_eeprom(eTimer &timer)
     uint8_t settings_buffer[sizeof(timer_setings_t)] = {0};
     timer_setings_t *ptr_settings_buffer = (timer_setings_t*)settings_buffer;
 
-    uint32_t devops;
-
     tim_addr = timer.get_timer_settings_address();
 
     timer.get_timer_settings(ptr_settings_buffer);
