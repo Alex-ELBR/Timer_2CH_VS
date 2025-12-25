@@ -47,23 +47,28 @@ void main_loop(void)
 
                 case STEP_LOAD_CH_DATA:
                 {
-                    uint8_t i = 0;
+                    static uint8_t i = 0;
+                    static uint8_t ch = 0;
 
-                    //if(eeprom.read_timer_eeprom(channel[0].timers[0]) == HAL_OK) {work_mode = NORMAL_WORK;}
-
-                    //work_mode = NORMAL_WORK;
-                    
-                    while(i < TIMER_AMOUNT)
+                    if(ch < CHANNEL_AMOUNT)
                     {
-                        eeprom.read_timer_eeprom(channel[0].timers[i]);
-                        ++i;
+                        if(i < TIMER_AMOUNT)
+                        {
+                            eeprom.read_timer_eeprom(channel[ch].timers[i]);
+                            ++i;
+                        }
+                        else 
+                        {
+                            ++ch;
+                            i = 0;
+                        }
                     }
-                    
-                    work_mode = NORMAL_WORK;
-
-                    
-                    
-
+                    else 
+                    {
+                        ch = 0;
+                        i = 0;
+                        work_mode = NORMAL_WORK;
+                    }
                 }; break;
                
             }

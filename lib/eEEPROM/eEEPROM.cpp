@@ -89,18 +89,6 @@ HAL_StatusTypeDef eEEPROM::read_channel_eeprom(eChannel &channel)
 
     ch_addr = channel.get_channel_settings_address();
 
-
-/*
-    /////////////////////////////////////
-    while(HAL_I2C_Mem_Write(_i2c_bus, (_dev_address << 1), tim_addr, I2C_MEMADD_SIZE_16BIT, settings_buffer, 1, HAL_I2C_ERROR_TIMEOUT) != HAL_OK)
-    {
-        return HAL_TIMEOUT;
-    } 
-    while(HAL_I2C_IsDeviceReady(_i2c_bus, _dev_address, 3, HAL_I2C_ERROR_TIMEOUT) != HAL_OK) 
-    {
-         return HAL_TIMEOUT; 
-    }
-*/
     while(HAL_I2C_Mem_Read(_i2c_bus, (_dev_address << 1), ch_addr, I2C_MEMADD_SIZE_16BIT, settings_buffer, sizeof(channel_settings_t), HAL_I2C_ERROR_TIMEOUT) != HAL_OK)
     {
         return HAL_TIMEOUT;
