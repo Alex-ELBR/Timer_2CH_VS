@@ -26,6 +26,7 @@ class eEEPROM
         I2C_HandleTypeDef *_i2c_bus;
         uint16_t _dev_address;
         uint8_t _settings_buffer[sizeof(timer_setings_t)] = {0};
+        uint8_t _settings_ch_buffer[sizeof(channel_settings_t)] = {0};
 
 };
 

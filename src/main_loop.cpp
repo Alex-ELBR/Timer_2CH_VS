@@ -59,6 +59,7 @@ void main_loop(void)
                         }
                         else 
                         {
+                            eeprom.read_channel_eeprom(channel[ch]);
                             ++ch;
                             i = 0;
                         }

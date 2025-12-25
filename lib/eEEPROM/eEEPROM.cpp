@@ -63,13 +63,12 @@ HAL_StatusTypeDef eEEPROM::read_timer_eeprom(eTimer &timer)
 HAL_StatusTypeDef eEEPROM::write_channel_eeprom(eChannel &channel)
 {
     uint16_t ch_addr;
-    uint8_t settings_buffer[sizeof(channel_settings_t)] = {0};
-    channel_settings_t *ptr_settings_buffer = (channel_settings_t*)settings_buffer;
+    channel_settings_t *ptr_settings_buffer = (channel_settings_t*)_settings_ch_buffer;
 
     ch_addr = channel.get_channel_settings_address();
     channel.get_channel_settings(ptr_settings_buffer);
     
-    while(HAL_I2C_Mem_Write(_i2c_bus, (_dev_address << 1), ch_addr, I2C_MEMADD_SIZE_16BIT, settings_buffer, sizeof(channel_settings_t), HAL_I2C_ERROR_TIMEOUT ) != HAL_OK)
+    while(HAL_I2C_Mem_Write(_i2c_bus, (_dev_address << 1), ch_addr, I2C_MEMADD_SIZE_16BIT, _settings_buffer, sizeof(channel_settings_t), HAL_I2C_ERROR_TIMEOUT ) != HAL_OK)
     {
         return HAL_TIMEOUT;
     } 
@@ -84,19 +83,14 @@ HAL_StatusTypeDef eEEPROM::write_channel_eeprom(eChannel &channel)
 HAL_StatusTypeDef eEEPROM::read_channel_eeprom(eChannel &channel)
 {
     uint16_t ch_addr;
-    uint8_t settings_buffer[sizeof(channel_settings_t)] = {0};
-    channel_settings_t *ptr_settings_buffer = (channel_settings_t*)settings_buffer;
+    channel_settings_t *ptr_settings_buffer = (channel_settings_t*)_settings_ch_buffer;
 
     ch_addr = channel.get_channel_settings_address();
 
-    while(HAL_I2C_Mem_Read(_i2c_bus, (_dev_address << 1), ch_addr, I2C_MEMADD_SIZE_16BIT, settings_buffer, sizeof(channel_settings_t), HAL_I2C_ERROR_TIMEOUT) != HAL_OK)
+    while(HAL_I2C_Mem_Read(_i2c_bus, (_dev_address << 1), ch_addr, I2C_MEMADD_SIZE_16BIT, _settings_ch_buffer, sizeof(channel_settings_t), HAL_I2C_ERROR_TIMEOUT) != HAL_OK)
     {
         return HAL_TIMEOUT;
     }    
-    while(HAL_I2C_IsDeviceReady(_i2c_bus, _dev_address, 3, HAL_I2C_ERROR_TIMEOUT) != HAL_OK) 
-    { 
-        return HAL_TIMEOUT; 
-    }
 
     channel.set_channel_settings(ptr_settings_buffer);
 
