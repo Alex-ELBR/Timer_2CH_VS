@@ -4,9 +4,8 @@ extern Display displ;
 extern ELed led_1, led_2, led_3;
 extern eRTC rtc;
 extern EButton keyboard;
-
+extern eEEPROM eeprom;
 extern eChannel channel[CHANNEL_AMOUNT];
-
 extern uint8_t test_month;
 
 display_clock_t get_clock(eRTC rtc);
@@ -48,7 +47,22 @@ void main_loop(void)
 
                 case STEP_LOAD_CH_DATA:
                 {
+                    uint8_t i = 0;
+
+                    //if(eeprom.read_timer_eeprom(channel[0].timers[0]) == HAL_OK) {work_mode = NORMAL_WORK;}
+
+                    //work_mode = NORMAL_WORK;
+                    
+                    while(i < TIMER_AMOUNT)
+                    {
+                        eeprom.read_timer_eeprom(channel[0].timers[i]);
+                        ++i;
+                    }
+                    
                     work_mode = NORMAL_WORK;
+
+                    
+                    
 
                 }; break;
                

@@ -6,7 +6,7 @@ uint16_t eTimer::get_timer_obj_count() { return _timer_number; }
 
 eTimer::eTimer(void)
 {
-    _timer_settings_addr = (sizeof(timer_setings_t) * _timer_number);
+    _timer_settings_addr = (uint16_t)(sizeof(timer_setings_t) * _timer_number);
     _tim_num = _timer_number;
     ++_timer_number;
 
@@ -97,16 +97,16 @@ void eTimer::set_timer_settings(void)
         _real_time_on.day = 0;
         _real_time_off.day = 0;
     }
-    set_time_on(_real_time_off);
-    set_time_off(_real_time_on);
+    set_time_on(_real_time_on);
+    set_time_off(_real_time_off);
 
 }
 
 void eTimer::set_timer_settings(const timer_setings_t *settings)
 {
     _tim_enable = settings->enable;
-    _time_on = settings->time_on;
-    _time_off = settings->time_off;
+    set_time_on(settings->time_on);
+    set_time_off(settings->time_off);
 
     // .. OTHER SETTINGS ...
 }

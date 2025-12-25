@@ -17,18 +17,20 @@ eEEPROM::eEEPROM(I2C_HandleTypeDef *i2c_obj, uint16_t address)
 HAL_StatusTypeDef eEEPROM::write_timer_eeprom(eTimer &timer)
 {
     uint16_t tim_addr;
-    uint8_t settings_buffer[sizeof(timer_setings_t)] = {0};
-    timer_setings_t *ptr_settings_buffer = (timer_setings_t*)settings_buffer;
+    timer_setings_t *ptr_settings_buffer = (timer_setings_t*)_settings_buffer;
 
     tim_addr = timer.get_timer_settings_address();
 
     timer.get_timer_settings(ptr_settings_buffer);
        
-    while(HAL_I2C_Mem_Write(_i2c_bus, (_dev_address << 1), tim_addr, I2C_MEMADD_SIZE_16BIT, settings_buffer, sizeof(timer_setings_t), HAL_I2C_ERROR_TIMEOUT ) != HAL_OK)
+    while(HAL_I2C_Mem_Write(_i2c_bus, (_dev_address << 1), tim_addr, I2C_MEMADD_SIZE_16BIT, _settings_buffer, sizeof(timer_setings_t), HAL_I2C_ERROR_TIMEOUT ) != HAL_OK)
     {
         return HAL_TIMEOUT;
     } 
-    while(HAL_I2C_IsDeviceReady(_i2c_bus, _dev_address, 3, HAL_I2C_ERROR_TIMEOUT) != HAL_OK) { return HAL_TIMEOUT; }
+    while(HAL_I2C_IsDeviceReady(_i2c_bus, _dev_address, 3, HAL_I2C_ERROR_TIMEOUT) != HAL_OK) 
+    {
+         return HAL_TIMEOUT; 
+    }
 
     return HAL_OK;
 }
@@ -40,30 +42,15 @@ HAL_StatusTypeDef eEEPROM::write_timer_eeprom(eTimer &timer)
 HAL_StatusTypeDef eEEPROM::read_timer_eeprom(eTimer &timer)
 {
     uint16_t tim_addr;
-    uint8_t settings_buffer[sizeof(timer_setings_t)] = {0};
-    timer_setings_t *ptr_settings_buffer = (timer_setings_t*)settings_buffer;
+    timer_setings_t *ptr_settings_buffer = (timer_setings_t*)_settings_buffer;
 
     tim_addr = timer.get_timer_settings_address();
 
-/*
-    /////////////////////////////////////
-    while(HAL_I2C_Mem_Write(_i2c_bus, (_dev_address << 1), tim_addr, I2C_MEMADD_SIZE_16BIT, settings_buffer, 1, HAL_I2C_ERROR_TIMEOUT) != HAL_OK)
-    {
-        return HAL_TIMEOUT;
-    } 
-    while(HAL_I2C_IsDeviceReady(_i2c_bus, _dev_address, 3, HAL_I2C_ERROR_TIMEOUT) != HAL_OK) 
-    {
-         return HAL_TIMEOUT; 
-    }
-*/
-    while(HAL_I2C_Mem_Read(_i2c_bus, (_dev_address << 1), tim_addr, I2C_MEMADD_SIZE_16BIT, settings_buffer, sizeof(timer_setings_t), HAL_I2C_ERROR_TIMEOUT) != HAL_OK)
+    while(HAL_I2C_Mem_Read(_i2c_bus, (_dev_address << 1), tim_addr, I2C_MEMADD_SIZE_16BIT, _settings_buffer, sizeof(timer_setings_t), HAL_I2C_ERROR_TIMEOUT) != HAL_OK)
     {
         return HAL_TIMEOUT;
     }    
-    while(HAL_I2C_IsDeviceReady(_i2c_bus, _dev_address, 3, HAL_I2C_ERROR_TIMEOUT) != HAL_OK) 
-    { 
-        return HAL_TIMEOUT; 
-    }
+
 
     timer.set_timer_settings(ptr_settings_buffer);
 

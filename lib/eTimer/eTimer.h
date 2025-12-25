@@ -89,7 +89,7 @@ class eTimer
         timer_real_time_t _real_time_off;   //время отключения, день/часы/минуты
         timer_real_time_t _real_time_on;    //время включения, день/часы/минуты
 
-        uint16_t _timer_settings_addr;
+        uint16_t _timer_settings_addr = 0;
         uint16_t _tim_num;
 
         static inline uint16_t _timer_number{};

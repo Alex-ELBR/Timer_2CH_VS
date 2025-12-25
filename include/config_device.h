@@ -96,7 +96,7 @@ const uint32_t BUST         = 50;      //колличество циклов д�
 #define I2C_BUS_SDA_PIN     GPIO_PIN_7
 
 const uint16_t ADDRESS_RTC = (uint16_t)0x68;     //0xD0
-const uint16_t ADDRESS_EEPROM = (uint16_t)0xA0;
+const uint16_t ADDRESS_EEPROM = (uint16_t)0x50; //0xA0; //;
 /*****************************************************************************************************/
 
 

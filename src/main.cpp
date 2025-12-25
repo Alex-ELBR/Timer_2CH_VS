@@ -62,7 +62,7 @@ int main(void)
       task_update_button.execution();
       task_update_leds.execution();
       task_main_loop.execution();
-      
+
     }
     
 
