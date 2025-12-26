@@ -94,23 +94,17 @@ void led_exception()
   char i[] = {'E', '-', stuck_task_digit.tens, stuck_task_digit.units};
   displ.show(i);
 
-
   if(HAL_GetTick() - timeKeep > 200)
   {
       timeKeep = HAL_GetTick();
       HAL_GPIO_TogglePin(LED_1_PORT, LED_1_PIN);
   }
-  else if(HAL_GetTick() & 1)
+
+  if(HAL_GetTick() & 1)
   {
     displ.display_update();
   }
-  
 }
-
-
-
-
-
 
 /*****************************************************************************************************/
 /*****************************************************************************************************/
