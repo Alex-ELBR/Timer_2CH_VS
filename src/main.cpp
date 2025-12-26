@@ -14,7 +14,7 @@ void update_button(void);
 void update_led(void);
 void get_time_rtc(void);
 
-void led_exception(void); /* Индикация зависания какой-либо задачи */
+void led_exception(); /* Индикация зависания какой-либо задачи */
 
 
 /*************************************************************************************** */
@@ -85,14 +85,24 @@ void get_time_rtc(void)
 
 
 /*** Индикация зависания какой-либо задачи ******************************************************* */
-void led_exception(void)
+void led_exception()
 {
   static uint32_t timeKeep = HAL_GetTick();
+
+  bcd8_level_t stuck_task_digit = bin8_trans(dispatcher.get_current_task());
+
+  char i[] = {'E', '-', stuck_task_digit.tens, stuck_task_digit.units};
+  displ.show(i);
+
 
   if(HAL_GetTick() - timeKeep > 200)
   {
       timeKeep = HAL_GetTick();
       HAL_GPIO_TogglePin(LED_1_PORT, LED_1_PIN);
+  }
+  else if(HAL_GetTick() & 1)
+  {
+    displ.display_update();
   }
   
 }

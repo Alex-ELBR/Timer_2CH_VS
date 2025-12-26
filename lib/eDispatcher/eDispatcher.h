@@ -21,6 +21,7 @@ class eDispatcher
         void execution(void);
 
         void tasks_timeout_check(void callback_exeption());
+        uint8_t get_current_task();
 
     private:
    
@@ -38,6 +39,7 @@ class eDispatcher
 
         vector<ETask> _tasks;
         uint32_t _timeout;
+        size_t _current_task;
 
 };
 

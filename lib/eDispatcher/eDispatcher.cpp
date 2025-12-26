@@ -23,13 +23,13 @@ void eDispatcher::add_task(void callback_function(), uint32_t period_ms)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 /// @brief 
-/// @param  
-void eDispatcher::execution(void)
+void eDispatcher::execution()
 {
     if(!_tasks.empty())
     {
         for(size_t i = 0; i != _tasks.size(); ++i)
         {
+            _current_task = i;
             _tasks[i].execution();
             _timeout = 0;
         }
@@ -42,6 +42,17 @@ void eDispatcher::execution(void)
 /// @param callback_exeption указатель на функцию, которая будет вызвана если одна из задач зависла
 void eDispatcher::tasks_timeout_check(void callback_exeption())
 {
-    if(_timeout > ETASK_TIMEOUT_MS) { callback_exeption(); }
+
+    if(_timeout > ETASK_TIMEOUT_MS) 
+    { 
+        callback_exeption(); 
+    }
     else { ++_timeout; }
 }
+
+uint8_t eDispatcher::get_current_task()
+{
+    return (uint8_t)_current_task;
+}
+
+

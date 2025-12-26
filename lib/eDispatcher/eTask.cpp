@@ -19,7 +19,7 @@ eDispatcher::ETask::ETask(void callback_function(), uint32_t period_ms)
 
 /// @brief функция выполнения задачи, вызывается в главном бесконечном цикле //////////////////////.///
 /// @param нет
-void eDispatcher::ETask::execution(void)
+void eDispatcher::ETask::execution()
 {
     if(HAL_GetTick() - _timeKeep > _delay_ms)
     {
