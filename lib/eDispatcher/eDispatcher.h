@@ -31,8 +31,8 @@ class eDispatcher
                 void execution(void);
 
             private:
-                uint32_t delay_ms;
-                uint32_t timeKeep;
+                uint32_t _delay_ms;
+                uint32_t _timeKeep;
                 void (*callback_ptr)();
         };
 
