@@ -17,27 +17,16 @@ void get_time_rtc(void);
 void led_exception(void); /* Индикация зависания какой-либо задачи */
 
 
-
-/*** Инициализация задач ***********************************/
-/*
-ETask task_main_loop(main_loop, 1);
-ETask task_update_display(update_display, 1);
-ETask task_update_button(update_button, 1);
-ETask task_update_leds(update_led, 500);
-ETask task_read_rtc(get_time_rtc, 50);
-*/
-
 /*************************************************************************************** */
-I2C_HandleTypeDef hi2c1; // шина I2C для обмена данными с часами и памятью
+I2C_HandleTypeDef hi2c1;                // шина I2C для обмена данными с часами и памятью
 
-eDispatcher dispatcher;
+eDispatcher dispatcher;                 // объект диспетчера задач
 
 Display displ;
 eRTC rtc(&hi2c1, ADDRESS_RTC);          //обьект часов
 eEEPROM eeprom(&hi2c1, ADDRESS_EEPROM); //обьект микросхемы памяти
 EButton keyboard;
 eChannel channel[CHANNEL_AMOUNT];
-
 
 ELed led_1(LED_1_PORT, LED_1_PIN);
 ELed led_2(LED_2_PORT, LED_2_PIN);
@@ -51,10 +40,6 @@ int main(void)
 
     MX_I2C1_Init(&hi2c1);
     MX_GPIO_Init();
-
-    //rtc.init();
-
-    
 
     HAL_Delay(1000);
 
@@ -71,16 +56,19 @@ int main(void)
 };
 
 /** РЕАЛИЗАЦИЯ ФУНКЦИЙ ЗАДАЧ ********************************************************/
+/////////////////////////////////////////////////////////////////
 void update_display(void)
 {
   displ.display_update();
 };
 
+/////////////////////////////////////////////////////////////////
 void update_button(void)
 {
   keyboard.button_update();
 }
 
+/////////////////////////////////////////////////////////////////
 void update_led(void)
 {
   led_1.periodic();
@@ -88,6 +76,7 @@ void update_led(void)
   led_3.periodic();
 }
 
+/////////////////////////////////////////////////////////////////
 void get_time_rtc(void)
 {
   rtc.periodic();

@@ -21,8 +21,8 @@ void eDispatcher::execution(void)
     {
         for(size_t i = 0; i != _tasks.size(); ++i)
         {
-            _timeout = 0;
             _tasks[i].execution();
+            _timeout = 0;
         }
     }
 
