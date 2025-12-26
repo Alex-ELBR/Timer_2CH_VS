@@ -19,17 +19,18 @@ void led_exception(void); /* Индикация зависания какой-л
 
 
 /*** Инициализация задач ***********************************/
+/*
 ETask task_main_loop(main_loop, 1);
 ETask task_update_display(update_display, 1);
 ETask task_update_button(update_button, 1);
 ETask task_update_leds(update_led, 500);
 ETask task_read_rtc(get_time_rtc, 50);
-
-
-uint32_t new_branch;
+*/
 
 /*************************************************************************************** */
 I2C_HandleTypeDef hi2c1; // шина I2C для обмена данными с часами и памятью
+
+eDispatcher dispatcher;
 
 Display displ;
 eRTC rtc(&hi2c1, ADDRESS_RTC);          //обьект часов
@@ -57,17 +58,16 @@ int main(void)
 
     HAL_Delay(1000);
 
+    dispatcher.add_task(main_loop, 1);
+    dispatcher.add_task(update_display, 1);
+    dispatcher.add_task(update_button, 1);
+    dispatcher.add_task(update_led, 500);
+    dispatcher.add_task(get_time_rtc, 50);
+
     while(1)
     {
-      task_read_rtc.execution();
-      task_update_display.execution();
-      task_update_button.execution();
-      task_update_leds.execution();
-      task_main_loop.execution();
-
+        dispatcher.execution();
     }
-    
-
 };
 
 /** РЕАЛИЗАЦИЯ ФУНКЦИЙ ЗАДАЧ ********************************************************/
@@ -246,7 +246,7 @@ static void MX_GPIO_Init(void)
 extern "C" int SysTick_Handler(void)
 {
 	HAL_IncTick();
-  ETask::tasks_timeout_check(led_exception); // Проверка таймаута исполнения задач
+  dispatcher.tasks_timeout_check(led_exception); // Проверка таймаута исполнения задач
 
   //osSystickHandler(); For FREERTOS stuff
   return 0;

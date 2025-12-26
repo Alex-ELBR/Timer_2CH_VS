@@ -4,8 +4,8 @@
 
 #include "stm32f1xx_hal.h"
 #include <config_device.h>
+#include <eDispatcher.h>
 #include <eDisplay.h>
-#include <eTask.h>
 #include <eLed.h>
 #include <eRTC.h>
 #include <eButton.h>
