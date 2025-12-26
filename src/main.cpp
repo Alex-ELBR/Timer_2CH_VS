@@ -26,6 +26,8 @@ ETask task_update_leds(update_led, 500);
 ETask task_read_rtc(get_time_rtc, 50);
 
 
+uint32_t new_branch;
+
 /*************************************************************************************** */
 I2C_HandleTypeDef hi2c1; // шина I2C для обмена данными с часами и памятью
 
