@@ -43,11 +43,11 @@ int main(void)
 
     HAL_Delay(1000);
 
-    dispatcher.add_task(main_loop, 1);
-    dispatcher.add_task(update_display, 1);
-    dispatcher.add_task(update_button, 1);
-    dispatcher.add_task(update_led, 500);
-    dispatcher.add_task(get_time_rtc, 50);
+    dispatcher.add_task(main_loop, 1);      //задача 1
+    dispatcher.add_task(update_display, 1); //задача 2
+    dispatcher.add_task(update_button, 1);  //задача 3
+    dispatcher.add_task(update_led, 500);   //задача 4
+    dispatcher.add_task(get_time_rtc, 50);  //задача 5
 
     while(1)
     {
@@ -89,7 +89,9 @@ void led_exception()
 {
   static uint32_t timeKeep = HAL_GetTick();
 
-  bcd8_level_t stuck_task_digit = bin8_trans(dispatcher.get_current_task());
+  uint8_t stuck_task = (dispatcher.get_current_task()) + 1;
+  bcd8_level_t stuck_task_digit = bin8_trans(stuck_task);
+
 
   char i[] = {'E', '-', stuck_task_digit.tens, stuck_task_digit.units};
   displ.show(i);
