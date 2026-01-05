@@ -11,6 +11,20 @@ using std::vector;
 
 const uint32_t ETASK_TIMEOUT_MS = (uint32_t)5000;
 
+/// @brief //////////////////////////////////////////////////////////////////////
+class ETask
+{
+    public:
+        ETask(void callback_function(), uint32_t period_ms);
+        void execution(void);
+
+    private:
+        uint32_t _delay_ms;
+        uint32_t _timeKeep;
+        void (*callback_ptr)();
+};
+
+
 
 /// @brief //////////////////////////////////////////////////////////////////////
 class eDispatcher
@@ -24,19 +38,6 @@ class eDispatcher
         uint8_t get_current_task();
 
     private:
-   
-        class ETask
-        {
-            public:
-                ETask(void callback_function(), uint32_t period_ms);
-                void execution(void);
-
-            private:
-                uint32_t _delay_ms;
-                uint32_t _timeKeep;
-                void (*callback_ptr)();
-        };
-
         vector<ETask> _tasks;
         uint32_t _timeout;
         size_t _current_task;

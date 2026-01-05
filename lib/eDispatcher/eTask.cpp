@@ -10,7 +10,7 @@
 /// @param callback_function - указатель на функцию, которая будет вызвана после истечения period_ms
 /// @param period_ms - периодичность вызова функции в мсек
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-eDispatcher::ETask::ETask(void callback_function(), uint32_t period_ms)
+ETask::ETask(void callback_function(), uint32_t period_ms)
 {
     callback_ptr = callback_function;
     _delay_ms = period_ms;
@@ -19,7 +19,7 @@ eDispatcher::ETask::ETask(void callback_function(), uint32_t period_ms)
 
 /// @brief функция выполнения задачи, вызывается в главном бесконечном цикле //////////////////////.///
 /// @param нет
-void eDispatcher::ETask::execution()
+void ETask::execution()
 {
     if(HAL_GetTick() - _timeKeep > _delay_ms)
     {
