@@ -15,18 +15,27 @@ ETask::ETask(void callback_function(), uint32_t period_ms)
     callback_ptr = callback_function;
     _delay_ms = period_ms;
     _timeKeep = HAL_GetTick();
+    _enable = true;
 }
+
+
+void ETask::suspend(void){ _enable = false; }
+void ETask::resume(void){ _enable = true; }
 
 /// @brief функция выполнения задачи, вызывается в главном бесконечном цикле //////////////////////.///
 /// @param нет
 void ETask::execution()
 {
-    if(HAL_GetTick() - _timeKeep > _delay_ms)
+    if(_enable)
     {
-        _timeKeep = HAL_GetTick();
-        callback_ptr();
+        if(HAL_GetTick() - _timeKeep > _delay_ms)
+        {
+            _timeKeep = HAL_GetTick();
+            callback_ptr();
+        }
     }
 }
+
 
 
 

@@ -17,10 +17,13 @@ class ETask
     public:
         ETask(void callback_function(), uint32_t period_ms);
         void execution(void);
+        void suspend(void);
+        void resume(void);
 
     private:
         uint32_t _delay_ms;
         uint32_t _timeKeep;
+        bool _enable;
         void (*callback_ptr)();
 };
 
