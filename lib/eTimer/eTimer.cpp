@@ -135,18 +135,19 @@ bool eTimer::get_timer_enable(void)
 
 
 /*** служебные функции ***********************************************************************************/
-template <typename T, typename OP, typename LMX, typename LMN> 
-void eTimer::change_operation(T *ptr_param, OP op, LMN limit_min, LMX limit_max)
+template <typename PARAM, typename OP, typename LMX, typename LMN> 
+void eTimer::change_operation(PARAM *ptr_param, OP op, LMN limit_min, LMX limit_max)
 {
     switch(op)
     {
         case PLUS:
         {
             
-            if constexpr(std::is_same<T, bool>::value)
+            if constexpr(std::is_same<PARAM, bool>::value)
             {
-                if((*ptr_param) == true) (*ptr_param) = false;
-                else (*ptr_param) = true;
+                //if((*ptr_param) == true) (*ptr_param) = false;
+                //else (*ptr_param) = true;
+                (*ptr_param) ^= true;
             }
             else
             {
@@ -159,10 +160,11 @@ void eTimer::change_operation(T *ptr_param, OP op, LMN limit_min, LMX limit_max)
         case MINUS:
         {
             
-            if constexpr(std::is_same<T, bool>::value)
+            if constexpr(std::is_same<PARAM, bool>::value)
             {
-                if((*ptr_param) == true) (*ptr_param) = false;
-                else (*ptr_param) = true;
+                //if((*ptr_param) == true) (*ptr_param) = false;
+                //else (*ptr_param) = true;
+                (*ptr_param) ^= true;
             }
             else
             {

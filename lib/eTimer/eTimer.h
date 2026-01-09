@@ -97,8 +97,8 @@ class eTimer
         timer_real_time_t unix_to_real_time(const uint32_t time);
         uint32_t real_time_to_unix(const timer_real_time_t real_time);
 
-        template <typename T, typename OP, typename LMX, typename LMN> 
-        void change_operation(T *ptr_param, OP op, LMN limit_min, LMX limit_max);
+        template <typename PARAM, typename OP, typename LMX, typename LMN> 
+        void change_operation(PARAM *ptr_param, OP op, LMN limit_min, LMX limit_max);
 
 };
 
