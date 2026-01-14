@@ -43,11 +43,12 @@ int main(void)
 
     HAL_Delay(1000);
 
-    dispatcher.add_task(main_loop, 1);      //задача 1
-    dispatcher.add_task(update_display, 1); //задача 2
-    dispatcher.add_task(update_button, 1);  //задача 3
-    dispatcher.add_task(update_led, 500);   //задача 4
-    dispatcher.add_task(get_time_rtc, 50);  //задача 5
+    dispatcher.add_task(main_loop, 1, "main_loop");      //задача 1
+    dispatcher.add_task(update_display, 1, "update_display"); //задача 2
+    dispatcher.add_task(update_button, 1, "update_button");  //задача 3
+    dispatcher.add_task(update_led, 500, "update_led");   //задача 4
+    dispatcher.add_task(get_time_rtc, 50, "get_time_rtc");  //задача 5
+
 
     while(1)
     {
