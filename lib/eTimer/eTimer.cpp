@@ -123,7 +123,10 @@ timer_real_time_t eTimer::unix_to_real_time(const uint32_t time)
 
 uint32_t eTimer::real_time_to_unix(const timer_real_time_t real_time)
 {
-   return(uint32_t)((uint32_t)(real_time.day) * 86400) + ((uint32_t)(real_time.hour) * 3600) + ((uint32_t)(real_time.minute) * 60) + ((uint32_t)(real_time.second));
+   return(uint32_t)((uint32_t)(real_time.day) * 86400) \
+                + ((uint32_t)(real_time.hour) * 3600) \
+                + ((uint32_t)(real_time.minute) * 60) \
+                + ((uint32_t)(real_time.second));
 }
 
 
