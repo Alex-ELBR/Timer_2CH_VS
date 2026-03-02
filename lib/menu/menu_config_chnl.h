@@ -37,6 +37,17 @@ enum _SCREEN_CONF_TIM_
     ENTER_CONFIG_TIM
 };
 
+enum _SCREEN_CONF_CH_FUNC_
+{
+    SCREEN_CH_FUNC_OFF,
+    SCREEN_CH_FUNC_WEEK,
+    SCREEN_CH_FUNC_SUN,
+    SCREEN_CH_FUNC_CIVIL,
+
+    LAST_MENU_CH_FUNC,
+    ENTER_CONFIG_CH_FUNC
+};
+
 enum _SCREEN_CONF_SELECTED_TIM_
 {
     SCREEN_CONF_TIM_ENABLE,
@@ -67,6 +78,7 @@ enum _STEP_CONFIG_SELECTED_TIM_
 
 bool menu_config_chnl(uint16_t button);
 bool menu_config_ch(uint16_t button, uint8_t ch_num);
+bool menu_config_ch_func(uint16_t button, uint8_t ch_num);
 bool menu_config_ch_tim(uint16_t button, uint8_t ch_num);
 bool menu_config_ch_selected_tim(uint16_t button, uint8_t ch_num, uint8_t tim_num);
 

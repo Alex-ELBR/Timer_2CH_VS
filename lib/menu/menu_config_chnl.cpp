@@ -30,7 +30,7 @@ bool menu_config_chnl(uint16_t button)
             {
                 case SCREEN_CONF_CH_NUM:
                 {
-                    if(!menu_config_ch(button, ch_num))
+                    if(!menu_config_ch(button, ch_num - 1))
                     {
                         screen = SCREEN_CONF_CH_NUM;
                         disable_but_on_this_level = false;
