@@ -92,8 +92,7 @@ HAL_StatusTypeDef eEEPROM::read_channel_eeprom(eChannel &channel)
         return HAL_TIMEOUT;
     }    
 
-    channel.set_channel_settings(ptr_settings_buffer);
-
+    channel.load_channel_settings(ptr_settings_buffer);
     return HAL_OK;
 }
 

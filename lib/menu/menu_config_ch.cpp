@@ -29,14 +29,14 @@ bool menu_config_ch(uint16_t button, uint8_t ch_num)
             {
                 case SCREEN_CONF_CH_FUNC:
                 {
-                    /*
+                    
                     if(!menu_config_ch_func(button, ch_num))
                     {
                         screen = SCREEN_CONF_CH_FUNC;
                         disable_but_on_this_level = false;
                         return 1;
                     }
-                    */
+                    
                 }; break;
 
                 case SCREEN_CONF_CH_TIM:
