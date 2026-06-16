@@ -59,7 +59,8 @@ class eChannel
         uint16_t _channel_settings_addr;
         static inline uint16_t _channel_obj_count{};
         uint16_t _channel_number;
-
+ 
+        
 
         channel_settings_t _channel_settings_temp;     
         template <typename PARAM, typename OP, typename LMX, typename LMN> 
