@@ -7,6 +7,7 @@
 #include <string.h>
 #include "stm32f1xx_hal.h"
 #include "unix_time.h"
+#include <twilight.hpp>
 
 #define STAT_SYMBOL     false
 #define BLINK_SYMBOL    true
@@ -105,6 +106,11 @@ class eRTC
         int16_t get_longitude_sec(void);
         int16_t get_timezone(void);
 
+        /* Операции чтения Астрономических данных */
+
+        void get_civil_dawn(uint8_t &hour, uint8_t &minute); // Начало утренних гражданских сумерек
+        void get_civil_dusk(uint8_t &hour, uint8_t &minute); // Конец вечерних гражданских сумерек
+
         /* Операции изменения данных часов */
         void start_change(void);
         void stop_change(void);
@@ -123,6 +129,8 @@ class eRTC
         uint8_t rtc_buffer[sizeof(rtc_data_t)+sizeof(loc_data_t)];  
         
         uint8_t loc_buffer[sizeof(loc_data_t)];
+
+        TwilightResult result = {0};
 
         template <typename T, typename OP> 
         void change_operation(T *ptr_param, OP op, int16_t limit_min, int16_t limit_max);

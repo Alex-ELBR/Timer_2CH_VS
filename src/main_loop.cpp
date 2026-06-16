@@ -9,8 +9,11 @@ extern eChannel channel[CHANNEL_AMOUNT];
 extern uint8_t test_month;
 
 display_clock_t get_clock(eRTC rtc);
+display_clock_t morning_twilight_start(eRTC rtc);
+display_clock_t evening_twilight_end(eRTC rtc);
 
-const uint8_t MAX_COUNT_MENU = 4;
+
+const uint8_t MAX_COUNT_MENU = 6;
 
 
 enum STEP_STARTUP_LOAD
@@ -88,50 +91,32 @@ void main_loop(void)
 
                 case 1:
                 {
-                    //displ.show((uint32_t)(channel[0].timers[0].get_timer_settings_address()));
                     displ.show_date(rtc.get_date());
                 };break;   
 
                 case 2:
                 {
-                    
-                    //displ.show((uint32_t)(channel[0].timers[1].get_timer_settings_address()));
                     displ.show_day(rtc.get_day());
                 };break;
 
                 case 3:
                 {
-                    
-                    //displ.show((uint32_t)(channel[0].timers[TIMER_AMOUNT - 1].get_timer_settings_address()));
-
                     displ.show_month(rtc.get_month());
                 };break;  
 
                 case 4:
                 {
-                    //displ.show((uint32_t)(channel[CHANNEL_AMOUNT - 1].timers[0].get_timer_settings_address()));
-
                     displ.show_year(rtc.get_year());
                 };break;
 
                 case 5:
                 {
-                    displ.show((uint32_t)(channel[CHANNEL_AMOUNT - 1].timers[1].get_timer_settings_address()));
+                    displ.show_clock(morning_twilight_start(rtc));
                 };break;
                 
                 case 6:
                 {
-                    displ.show((uint32_t)(channel[CHANNEL_AMOUNT - 1].timers[TIMER_AMOUNT - 1].get_timer_settings_address()));
-                };break;
-
-                case 7:
-                {
-                    displ.show((uint32_t)(channel[0].get_channel_settings_address()));
-                };break;
-
-                case 8:
-                {
-                    displ.show((uint32_t)(channel[CHANNEL_AMOUNT - 1].get_channel_settings_address()));
+                    displ.show_clock(evening_twilight_end(rtc));
                 };break;
 
                 default:{ break; }
@@ -183,5 +168,24 @@ display_clock_t get_clock(eRTC rtc)
     clocks.hour = rtc.get_hour();
     clocks.minute = rtc.get_minute();
     clocks.comma = rtc.get_sec_comma();
+    return clocks;
+}
+
+display_clock_t morning_twilight_start(eRTC rtc)
+{
+    display_clock_t clocks;
+
+    rtc.get_civil_dawn(clocks.hour, clocks.minute);
+    clocks.comma = true;
+    return clocks;
+}
+
+display_clock_t evening_twilight_end(eRTC rtc)
+{
+    display_clock_t clocks;
+    
+    rtc.get_civil_dusk(clocks.hour, clocks.minute);
+    clocks.comma = true;
+
     return clocks;
 }

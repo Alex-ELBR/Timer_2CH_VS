@@ -149,6 +149,14 @@ HAL_StatusTypeDef eRTC::periodic(void)
     rtc_time.sec_only_day = ((uint32_t)(rtc_time.hour) * 3600) + ((uint32_t)(rtc_time.minute) * 60) + ((uint32_t)(rtc_time.second));
     rtc_time.sec_week = ((uint32_t)(rtc_time.day) * 86400) + ((uint32_t)(rtc_time.hour) * 3600) + ((uint32_t)(rtc_time.minute) * 60) + ((uint32_t)(rtc_time.second));
      
+
+    int32_t lon_total_seconds = (int32_t)rtc_location.lon_deg * 3600 + (int32_t)rtc_location.lon_min * 60 + (int32_t)rtc_location.lon_sec;
+    int32_t lon = (lon_total_seconds * 100 + 1800) / 3600;
+    int32_t lat_total_seconds = (int32_t)rtc_location.lat_deg * 3600 + (int32_t)rtc_location.lat_min * 60 + (int32_t)rtc_location.lat_sec;
+    int32_t lat = (lat_total_seconds * 100 + 1800) / 3600;
+
+    result = calculate_twilight(rtc_time.unix_time, lat, lon, (rtc_location.time_zone * 100), TwilightType::Civil);
+
     return HAL_OK;
  }
 
@@ -174,6 +182,24 @@ int16_t eRTC::get_latitude_sec(void){ return rtc_location.lat_sec; }
 
 int16_t eRTC::get_timezone(void){ return rtc_location.time_zone; }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+void eRTC::get_civil_dawn(uint8_t &hour, uint8_t &minute) // Начало утренних гражданских сумерек
+{
+    real_time_t user_time;
+    unix_to_date(result.start_time, &user_time);
+    hour = user_time.hour;
+    minute = user_time.minute;
+
+}
+
+void eRTC::get_civil_dusk(uint8_t &hour, uint8_t &minute) // Конец вечерних гражданских сумерек
+{
+    real_time_t user_time;
+    unix_to_date(result.end_time, &user_time);
+    hour = user_time.hour;
+    minute = user_time.minute;
+
+}
 
 /******************************************************************************************************************** */
 void eRTC::start_change(void)
