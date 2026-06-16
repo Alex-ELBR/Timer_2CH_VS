@@ -57,17 +57,7 @@ typedef struct
 
 } real_time_t; //структура данных дл¤ часов
 
-typedef struct 
-{
-   int16_t  lat_deg;         /**< широта, градусы  */
-   uint8_t  lat_min;         /**< широта, минуты   */
-   uint8_t  lat_sec;         /**< широта, секунды  */
-   int16_t  lon_deg;         /**< долгота, градусы */
-   uint8_t  lon_min;         /**< долгота, минуты  */
-   uint8_t  lon_sec;         /**< долгота, секунды */
-   int8_t   time_zone;       /**< временная зона   */
 
-}__attribute__((__packed__)) location_t;
 
 
 

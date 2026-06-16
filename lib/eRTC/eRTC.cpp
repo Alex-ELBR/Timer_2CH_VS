@@ -150,15 +150,15 @@ HAL_StatusTypeDef eRTC::periodic(void)
     rtc_time.sec_week = ((uint32_t)(rtc_time.day) * 86400) + ((uint32_t)(rtc_time.hour) * 3600) + ((uint32_t)(rtc_time.minute) * 60) + ((uint32_t)(rtc_time.second));
      
 
-    int32_t lon_total_seconds = (int32_t)rtc_location.lon_deg * 3600 + (int32_t)rtc_location.lon_min * 60 + (int32_t)rtc_location.lon_sec;
-    int32_t lon = (lon_total_seconds * 100 + 1800) / 3600;
-    int32_t lat_total_seconds = (int32_t)rtc_location.lat_deg * 3600 + (int32_t)rtc_location.lat_min * 60 + (int32_t)rtc_location.lat_sec;
-    int32_t lat = (lat_total_seconds * 100 + 1800) / 3600;
+    int32_t lat = 0;
+    int32_t lon = 0;
+    int16_t tz = 0;
+    convert_coordinate(&rtc_location, &lat, &lon, &tz);
 
-    result = calculate_twilight(rtc_time.unix_time, lat, lon, (rtc_location.time_zone * 100), TwilightType::Civil);
+    result = calculate_twilight(rtc_time.unix_time, lat, lon, tz, TwilightType::Civil);
 
     return HAL_OK;
- }
+}
 
 uint32_t eRTC::get_unix_time(void) { return rtc_time.unix_time; }
 uint8_t eRTC::get_day(void) { return rtc_time.day; }
@@ -399,5 +399,41 @@ void eRTC::change_operation(T *ptr_param, OP op, int16_t limit_min, int16_t limi
             if((*ptr_param) > limit_min) --(*ptr_param);
             else (*ptr_param) = limit_max;
         }; break;
+    }
+}
+
+/********************************************************************************************************* */
+// Преобразование координат
+// Функция преобразования
+void eRTC::convert_coordinate(const loc_data_t *data, int32_t *out_lat, int32_t *out_lon, int16_t *tz) 
+{
+    // Защита от передачи нулевых указателей (предотвращает HardFault)
+    if (data == nullptr) return;
+
+    // 1. Считаем модуль дробной части в сотых долях градуса.
+    // Явно приводим все аргументы к int32_t, чтобы избежать предупреждений о знаковости (signed/unsigned)
+    int32_t lat_frac = ((int32_t)data->lat_min * 6000 + (int32_t)data->lat_sec * 100 + 1800) / 3600;
+    int32_t lon_frac = ((int32_t)data->lon_min * 6000 + (int32_t)data->lon_sec * 100 + 1800) / 3600;
+
+    // 2. Объединяем градусы и дробную часть с учетом знака (для южного и западного полушарий)
+    if (out_lat != nullptr) {
+        if (data->lat_deg >= 0) {
+            *out_lat = ((int32_t)data->lat_deg * 100) + lat_frac;
+        } else {
+            *out_lat = ((int32_t)data->lat_deg * 100) - lat_frac;
+        }
+    }
+
+    if (out_lon != nullptr) {
+        if (data->lon_deg >= 0) {
+            *out_lon = ((int32_t)data->lon_deg * 100) + lon_frac;
+        } else {
+            *out_lon = ((int32_t)data->lon_deg * 100) - lon_frac;
+        }
+    }
+
+    // 3. Конвертация часового пояса в формат ЧЧММ
+    if (tz != nullptr) {
+        *tz = (int16_t)((int32_t)data->time_zone * 100);
     }
 }

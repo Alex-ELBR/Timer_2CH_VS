@@ -125,12 +125,14 @@ class eRTC
 
         bool is_config;
         real_time_t rtc_time = {0};
-        location_t rtc_location = {0};
+        loc_data_t rtc_location = {0};
         uint8_t rtc_buffer[sizeof(rtc_data_t)+sizeof(loc_data_t)];  
         
         uint8_t loc_buffer[sizeof(loc_data_t)];
 
         TwilightResult result = {0};
+        
+        void convert_coordinate(const loc_data_t *data, int32_t *out_lat, int32_t *out_lon, int16_t *tz);
 
         template <typename T, typename OP> 
         void change_operation(T *ptr_param, OP op, int16_t limit_min, int16_t limit_max);

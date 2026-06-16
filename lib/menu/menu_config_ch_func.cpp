@@ -10,7 +10,7 @@ bool menu_config_ch_func(uint16_t button, uint8_t ch_num)
 
     static uint8_t ch_func = 0;
     static bool disable_but_on_this_level = false;
-    static channel_settings_t ch_settings = {0};
+    //static channel_settings_t ch_settings = {0};
 
 
     ch_func = channel[ch_num].get_channel_function();
