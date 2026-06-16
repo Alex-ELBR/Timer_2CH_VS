@@ -31,4 +31,4 @@ struct TwilightResult {
  * @param type Требуемый тип сумерек.
  * @return TwilightResult Структура с локальными метками времени (уже включают сдвиг таймзоны).
  */
-TwilightResult calculate_twilight_f103(uint32_t unix_time, int32_t lat_scaled, int32_t lon_scaled, int16_t tz_offset_scaled, TwilightType type);
+TwilightResult calculate_twilight(uint32_t unix_time, int32_t lat_scaled, int32_t lon_scaled, int16_t tz_offset_scaled, TwilightType type);

@@ -1,4 +1,4 @@
-#include "twilight_f103.hpp"
+#include "twilight.hpp"
 
 /**
  * ТАБЛИЦА СИНУСОВ (Look-Up Table)
@@ -113,7 +113,7 @@ static int get_day_of_year(uint32_t unix_time) {
     return days + 1; // Возвращаем текущий день от 1 января (1-индексированный)
 }
 
-TwilightResult calculate_twilight_f103(uint32_t unix_time, int32_t lat_scaled, int32_t lon_scaled, int16_t tz_offset_scaled, TwilightType type) {
+TwilightResult calculate_twilight(uint32_t unix_time, int32_t lat_scaled, int32_t lon_scaled, int16_t tz_offset_scaled, TwilightType type) {
     TwilightResult result = {0, 0, false};
     
     // 1. ПАРСИНГ ЧАСОВОГО ПОЯСА И ПЕРЕВОД В СЕКУНДЫ

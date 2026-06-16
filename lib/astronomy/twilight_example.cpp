@@ -1,4 +1,6 @@
-#include "twilight_f103.hpp"
+/*
+
+#include "twilight.hpp"
 
 void example() {
     // Координаты Москвы: 55.75° N, 37.61° E
@@ -15,7 +17,7 @@ void example() {
     uint32_t current_utc_unix = 1781524800; 
 
     // Расчет гражданских сумерек
-    TwilightResult result = calculate_twilight_f103(current_utc_unix, lat, lon, timezone, TwilightType::Civil);
+    TwilightResult result = calculate_twilight(current_utc_unix, lat, lon, timezone, TwilightType::Civil);
 
     if (result.is_valid) {
         // Эти метки времени уже содержат в себе сдвиг часового пояса.
@@ -24,3 +26,5 @@ void example() {
         uint32_t local_evening_end = result.end_time;
     }
 }
+
+*/
