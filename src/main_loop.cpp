@@ -150,7 +150,7 @@ void main_loop(void)
 
         case CONFIGURATION:
         {
-            if(!menu_main(keyboard.get_button())) work_mode = NORMAL_WORK;           
+            if(!menu_main(keyboard.get_button(), displ, rtc)) work_mode = NORMAL_WORK;           
 
         }; break;
 

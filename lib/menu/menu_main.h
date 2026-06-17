@@ -7,8 +7,7 @@
 #include "stm32f1xx_hal.h"
 #include "config_device.h"
 #include <time_common.h>
-#include <eButton.h>
-#include <eDisplay.h>
+
 #include "menu_config_rtc.h"
 #include "menu_config_loc.h"
 #include "menu_config_chnl.h"
@@ -27,7 +26,7 @@ enum _SCREENS_MAIN_MENU_
 
 
 
-bool menu_main(uint16_t button);
+bool menu_main(uint16_t button, Display& displ, eRTC& rtc);
 
 
 
