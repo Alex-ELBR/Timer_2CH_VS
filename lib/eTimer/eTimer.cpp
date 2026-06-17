@@ -1,14 +1,18 @@
 #include <eTimer.h>
 #include <type_traits>
 
-uint16_t eTimer::get_timer_obj_count() { return _timer_number; }
+uint16_t eTimer::_timer_number = 0; 
+
+uint16_t eTimer::get_timer_obj_count() { 
+    return _timer_number; 
+}
 
 
 eTimer::eTimer(void)
 {
-    _timer_settings_addr = (uint16_t)(sizeof(timer_setings_t) * _timer_number);
-    _tim_num = _timer_number;
-    ++_timer_number;
+    _tim_num = _timer_number; 
+    ++_timer_number; 
+    _timer_settings_addr = (uint16_t)(sizeof(timer_setings_t) * _tim_num);
 
     _tim_enable = false;
     _time_off = 0;
@@ -54,7 +58,7 @@ void eTimer::change_parameter(uint8_t parameter_name, uint16_t op)
     {
         case CHANGE_TIM_ENABLE:
         {
-            change_operation(&_tim_enable, op, false, true);
+            change_operation(&_tim_enable, op);
         }; break;
 
         case CHANGE_TIM_ON_HOUR:
@@ -138,7 +142,7 @@ bool eTimer::get_timer_enable(void)
 
 
 /*** служебные функции ***********************************************************************************/
-template <typename PARAM, typename OP, typename LMX, typename LMN> 
+template <typename PARAM, typename OP, typename LMN, typename LMX> 
 void eTimer::change_operation(PARAM *ptr_param, OP op, LMN limit_min, LMX limit_max)
 {
     switch(op)
@@ -148,7 +152,7 @@ void eTimer::change_operation(PARAM *ptr_param, OP op, LMN limit_min, LMX limit_
             
             if constexpr(std::is_same<PARAM, bool>::value)
             {
-                (*ptr_param) ^= true;
+                *ptr_param = !(*ptr_param);
             }
             else
             {
@@ -163,7 +167,7 @@ void eTimer::change_operation(PARAM *ptr_param, OP op, LMN limit_min, LMX limit_
             
             if constexpr(std::is_same<PARAM, bool>::value)
             {
-                (*ptr_param) ^= true;
+                *ptr_param = !(*ptr_param);
             }
             else
             {

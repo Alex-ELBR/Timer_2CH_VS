@@ -52,6 +52,8 @@ class eTimer
 {
     public:
         eTimer(void);
+        eTimer(const eTimer&) = delete;
+        eTimer& operator=(const eTimer&) = delete;
 
         void set_enable(bool action);
 
@@ -91,14 +93,14 @@ class eTimer
 
         uint16_t _timer_settings_addr = 0;
         uint16_t _tim_num;
-
-        static inline uint16_t _timer_number{};
+        
+        static uint16_t _timer_number;
 
         timer_real_time_t unix_to_real_time(const uint32_t time);
         uint32_t real_time_to_unix(const timer_real_time_t real_time);
 
-        template <typename PARAM, typename OP, typename LMX, typename LMN> 
-        void change_operation(PARAM *ptr_param, OP op, LMN limit_min, LMX limit_max);
+        template <typename PARAM, typename OP, typename LMN = int, typename LMX = int> 
+        void change_operation(PARAM *ptr_param, OP op, LMN limit_min = 0, LMX limit_max = 0);
 
 };
 

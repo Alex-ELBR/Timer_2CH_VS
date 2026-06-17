@@ -284,7 +284,7 @@ HAL_StatusTypeDef eRTC::change_parameter(uint8_t parameter_name, uint16_t op)
             
             case CHANGE_LON_DEG:
             {
-                auto temp_lon = rtc_location.lon_deg; 
+                int16_t temp_lon = rtc_location.lon_deg; 
                 change_operation(temp_lon, op, -180, 180);
                 rtc_location.lon_deg = temp_lon;
             }; break; 
@@ -302,7 +302,7 @@ HAL_StatusTypeDef eRTC::change_parameter(uint8_t parameter_name, uint16_t op)
 
             case CHANGE_LAT_DEG:
             {
-                auto temp_lat = rtc_location.lat_deg;
+                int16_t temp_lat = rtc_location.lat_deg;
                 change_operation(temp_lat, op, -90, 90); 
                 rtc_location.lat_deg = temp_lat;
             }; break; 
