@@ -112,6 +112,9 @@ HAL_StatusTypeDef eRTC::periodic(void)
     uint8_t start_addr = START_ADDRESS_RTC;
     ptr_rtc_buffer_t *ptr_rtc_buf = (ptr_rtc_buffer_t*)rtc_buffer;
 
+    TwilightResult civil = {0};
+    TwilightResult sun = {0};
+
     if(is_config) return HAL_OK; // если запущена настройка часов - выходим без чтения
 
     /////////////////////////////////////
@@ -126,9 +129,9 @@ HAL_StatusTypeDef eRTC::periodic(void)
     }
 
     /////////////////////////////////////
-    rtc_time.unix_time = date_to_unix(&rtc_time);
+    rtc_time.unix_time = time_to_unix(&rtc_time);
     rtc_time.sec_comma = rtc_time.second & 1;
-    rtc_time.day = unix_to_day(rtc_time.unix_time);
+    rtc_time.day = unix_to_weekday(rtc_time.unix_time);
 
 
     rtc_time.hour =  bcd_to_dec(ptr_rtc_buf->hour); 
@@ -156,10 +159,17 @@ HAL_StatusTypeDef eRTC::periodic(void)
     int16_t tz = 0;  
 
     convert_coordinate(&rtc_location, &lat, &lon, &tz);
-    result = calculate_twilight(rtc_time.unix_time, lat, lon, tz, TwilightType::Civil);
+    civil = calculate_twilight(rtc_time.unix_time, lat, lon, tz, TwilightType::Civil);
+    sun = calculate_twilight(rtc_time.unix_time, lat, lon, tz, TwilightType::Official);
 
-    if(result.polar_day){ led_2.blink();} else{ led_2.off(); }
-    if(result.polar_night){ led_3.blink();} else{ led_3.off(); }
+    rtc_time.polar_day = civil.polar_day;
+    rtc_time.polar_night = civil.polar_night;
+
+    rtc_time.twilight_rise = civil.start_time;
+    rtc_time.twilight_set = civil.end_time;
+
+    rtc_time.sun_rise = sun.start_time;
+    rtc_time.sun_set = sun.end_time;
 
     return HAL_OK;
 }
@@ -190,7 +200,7 @@ int16_t eRTC::get_timezone(void){ return rtc_location.time_zone; }
 void eRTC::get_civil_dawn(uint8_t &hour, uint8_t &minute) // Начало утренних гражданских сумерек
 {
     real_time_t user_time;
-    unix_to_date(result.start_time, &user_time);
+    unix_to_time(rtc_time.twilight_rise, &user_time);
     hour = user_time.hour;
     minute = user_time.minute;
 
@@ -199,7 +209,7 @@ void eRTC::get_civil_dawn(uint8_t &hour, uint8_t &minute) // Начало утр
 void eRTC::get_civil_dusk(uint8_t &hour, uint8_t &minute) // Конец вечерних гражданских сумерек
 {
     real_time_t user_time;
-    unix_to_date(result.end_time, &user_time);
+    unix_to_time(rtc_time.twilight_set, &user_time);
     hour = user_time.hour;
     minute = user_time.minute;
 
@@ -440,4 +450,101 @@ void eRTC::convert_coordinate(const loc_data_t *data, int32_t *out_lat, int32_t 
     if (tz != nullptr) {
         *tz = (int16_t)((int32_t)data->time_zone * 100);
     }
+}
+
+/******************************************************************************************************** */
+/*************************************************************************/
+const uint32_t SEC_A_DAY  = 86400;
+const uint32_t ONE_HOUR   = 3600;    /** ќдин час, выраженный в секундах */
+const uint32_t ONE_DEGREE = 3600L;   /** ”гловой градус, выраженный в угловых секундах */
+const uint32_t ONE_DAY    = 86400 ;  /** ќдин день, выраженный в секундах */
+
+
+
+void eRTC::unix_to_time(const uint32_t unix_time, real_time_t *timeptr)
+{
+	uint32_t a;
+	uint8_t b;
+	uint8_t c;
+	uint8_t d;
+	uint32_t time;
+
+	// Количество секунд, прошедших с начала текущих суток
+	time = unix_time % SEC_A_DAY; // SEC_A_DAY должен быть равен 86400
+	
+	// Вычисление дня недели строго под ваш enum (MONDAY = 0 ... SUNDAY = 6)
+	// 1 января 1970 — четверг. Сдвиг +3 делает понедельник нулевой точкой.
+	uint32_t days_since_epoch = unix_time / 86400;
+	timeptr->day = (days_since_epoch + 3) % 7; 
+
+	// Математический алгоритм Флагерна для вычисления даты
+	a = ((unix_time + 43200) / (86400 >> 1)) + (2440587 << 1) + 1;
+	a >>= 1;
+	a += 32044;
+	b = (4 * a + 3) / 146097;
+	a = a - (146097 * b) / 4;
+	c = (4 * a + 3) / 1461;
+	a = a - (1461 * c) / 4;
+	d = (5 * a + 2) / 153;
+	
+	// Заполнение календаря человека
+	timeptr->date = a - (153 * d + 2) / 5 + 1;
+	timeptr->month = (d + 3 - 12 * (d / 10));
+	timeptr->year = 100 * b + c - 4800 + (d / 10);
+	
+	// Заполнение времени суток
+	timeptr->hour = (time / 3600);
+	timeptr->minute = (time % 3600) / 60;
+	timeptr->second = (time % 3600) % 60;
+}
+
+
+uint32_t eRTC::time_to_unix(const real_time_t *timeptr)
+{
+	int32_t a;
+	int32_t y;
+	int32_t m;
+	uint32_t Uday;
+	uint32_t unix_time;
+
+	// ИСПРАВЛЕНИЕ 1: Перевод критических переменных в 32-битные знаковые типы,
+	// чтобы избежать переполнения при умножении года на 365
+	a = (14 - (int32_t)timeptr->month) / 12;
+	y = (int32_t)timeptr->year + 4800 - a;
+	m = (int32_t)timeptr->month + (12 * a) - 3;
+
+	// Расчет количества дней с Юлианского периода до Эпохи Unix (2440588)
+	// Все константы автоматически обрабатываются процессором как 32-битные
+	Uday = (timeptr->date + ((153 * m + 2) / 5) + 365 * y + (y / 4) - (y / 100) + (y / 400) - 32045) - 2440588;
+	
+	// Перевод дней в секунды
+	unix_time = Uday * SEC_A_DAY; // SEC_A_DAY = 86400
+	
+	// Добавление времени суток
+	unix_time += (uint32_t)timeptr->second + 
+	             ((uint32_t)timeptr->minute * 60) + 
+	             ((uint32_t)timeptr->hour * 3600);
+
+	return unix_time;
+}
+
+
+
+uint8_t eRTC::unix_to_weekday(const uint32_t unix_time)
+{
+    // Находим количество полных дней, прошедших с 1 января 1970 года
+    uint32_t days_since_epoch = unix_time / 86400; // 86400 секунд в сутках
+    
+    // 1 января 1970 года — это ЧЕТВЕРГ.
+    // Чтобы ПОНЕДЕЛЬНИК стал равен 0 (согласно вашему enum _WEEK_DAYS_),
+    // нам нужно добавить сдвиг +3 к общему количеству дней.
+    return (uint8_t)((days_since_epoch + 3) % 7);	
+}
+
+
+uint8_t eRTC::is_leap_year(int16_t year)
+{
+    // Год високосный, если он делится на 4 и при этом:
+    // либо не делится на 100, либо делится на 400.
+    return ((year & 3) == 0 && (year % 100 != 0 || year % 400 == 0));
 }

@@ -6,9 +6,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include "stm32f1xx_hal.h"
+#include <time_common.h>
+
 
 #include "bin_bcd.h"
-#include "unix_time.h"
 
 
 using namespace std;
@@ -79,7 +80,6 @@ class Display
         void show_location_tz(const int8_t time_zone, uint8_t blink);
        
 
-        void show_time(const uint32_t time);
         void display_char_write_pos(uint8_t value, uint8_t pos, uint8_t mode);
 
 

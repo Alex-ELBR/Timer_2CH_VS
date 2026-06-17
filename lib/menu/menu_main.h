@@ -6,6 +6,7 @@
 #include <string.h>
 #include "stm32f1xx_hal.h"
 #include "config_device.h"
+#include <time_common.h>
 #include <eButton.h>
 #include <eDisplay.h>
 #include "menu_config_rtc.h"

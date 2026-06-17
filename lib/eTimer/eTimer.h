@@ -6,7 +6,7 @@
 #include <string.h>
 #include "stm32f1xx_hal.h"
 #include "config_device.h"
-#include "unix_time.h"
+#include <time_common.h>
 
 
 // типы для параметра "op" функции change_parameter()

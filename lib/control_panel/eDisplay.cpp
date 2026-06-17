@@ -222,32 +222,6 @@ void Display::show(const uint32_t data)
 
 }
 
-
-void Display::show_time(const uint32_t time)
-{
-    real_time_t clock;
-    bcd8_level_t hour, minute;
-
-    unix_to_date(time, &clock);
-    all_digits_stat();
-
-    hour = bin8_trans(clock.hour);
-    minute = bin8_trans(clock.minute);
-
-    digits.digit_4.symbol = hour.tens;
-    digits.digit_4.comma = false;
-
-    digits.digit_3.symbol = hour.units;
-    if(!(time & 1))digits.digit_3.comma = true;
-    else digits.digit_3.comma = false;
-
-    digits.digit_2.symbol = minute.tens;
-    digits.digit_2.comma = false;
-
-    digits.digit_1.symbol = minute.units;
-    digits.digit_1.comma = false;
-}
-
 void Display::show_clock(const display_clock_t clock, uint8_t blink)
 {
     bcd8_level_t hour, minute;

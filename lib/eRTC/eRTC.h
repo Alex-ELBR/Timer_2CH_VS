@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "stm32f1xx_hal.h"
-#include "unix_time.h"
+#include <time_common.h>
 #include <twilight.hpp>
 
 #include "eLed.h"
@@ -14,6 +14,7 @@
 
 #define STAT_SYMBOL     false
 #define BLINK_SYMBOL    true
+
 
 enum _SCREEN_CONF_
 {
@@ -77,7 +78,6 @@ typedef struct
 }__attribute__((__packed__)) loc_data_t;
 
 
-
 /********************************************************************************************* */
 class eRTC
 {
@@ -130,12 +130,13 @@ class eRTC
         real_time_t rtc_time = {0};
         loc_data_t rtc_location = {0};
         uint8_t rtc_buffer[sizeof(rtc_data_t)+sizeof(loc_data_t)];  
-        
         uint8_t loc_buffer[sizeof(loc_data_t)];
-
-        TwilightResult result = {0};
         
         void convert_coordinate(const loc_data_t *data, int32_t *out_lat, int32_t *out_lon, int16_t *tz);
+        void unix_to_time(const uint32_t unix_time, real_time_t *timeptr);
+        uint32_t time_to_unix(const real_time_t *timeptr);
+        uint8_t unix_to_weekday(const uint32_t unix_time);
+        uint8_t is_leap_year(int16_t year);
 
         template <typename T, typename OP> 
         void change_operation(T *ptr_param, OP op, int16_t limit_min, int16_t limit_max);
