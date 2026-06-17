@@ -148,8 +148,6 @@ void eTimer::change_operation(PARAM *ptr_param, OP op, LMN limit_min, LMX limit_
             
             if constexpr(std::is_same<PARAM, bool>::value)
             {
-                //if((*ptr_param) == true) (*ptr_param) = false;
-                //else (*ptr_param) = true;
                 (*ptr_param) ^= true;
             }
             else
@@ -165,8 +163,6 @@ void eTimer::change_operation(PARAM *ptr_param, OP op, LMN limit_min, LMX limit_
             
             if constexpr(std::is_same<PARAM, bool>::value)
             {
-                //if((*ptr_param) == true) (*ptr_param) = false;
-                //else (*ptr_param) = true;
                 (*ptr_param) ^= true;
             }
             else
