@@ -241,17 +241,17 @@ HAL_StatusTypeDef eRTC::change_parameter(uint8_t parameter_name, uint16_t op)
         {
             case CHANGE_HOUR:
             {
-                change_operation(&(rtc_time.hour), op, 0, 23);
+                change_operation(rtc_time.hour, op, 0, 23);
             }; break;
 
             case CHANGE_MINUTE:
             {
-                change_operation(&(rtc_time.minute), op, 0, 59);
+                change_operation(rtc_time.minute, op, 0, 59);
             }; break;  
 
             case CHANGE_DAY:
             {
-                change_operation(&(rtc_time.day), op, MONDAY, SUNDAY);
+                change_operation(rtc_time.day, op, MONDAY, SUNDAY);
             }; break;   
 
             case CHANGE_DATE:
@@ -269,53 +269,57 @@ HAL_StatusTypeDef eRTC::change_parameter(uint8_t parameter_name, uint16_t op)
                 }
                 else limit_date_max = 31;
 
-                change_operation(&(rtc_time.date), op, 0, limit_date_max);
+                change_operation(rtc_time.date, op, 0, limit_date_max);
             }; break;  
 
             case CHANGE_MONTH:
             {
-                change_operation(&(rtc_time.month), op, JANUARY, DECEMBER);
+                change_operation(rtc_time.month, op, JANUARY, DECEMBER);
             }; break; 
 
             case CHANGE_YEAR:
             {
-                change_operation(&(rtc_time.year), op, 2000, 2100);
+                change_operation(rtc_time.year, op, 2000, 2100);
             }; break;    
             
             case CHANGE_LON_DEG:
             {
-                change_operation(&(rtc_location.lon_deg), op, -180, 180);
+                auto temp_lon = rtc_location.lon_deg; 
+                change_operation(temp_lon, op, -180, 180);
+                rtc_location.lon_deg = temp_lon;
             }; break; 
 
             case CHANGE_LON_MIN:
             {
-                change_operation(&(rtc_location.lon_min), op, 0, 60);
+                change_operation(rtc_location.lon_min, op, 0, 60);
             }; break;
 
             case CHANGE_LON_SEC:
             {
-                change_operation(&(rtc_location.lon_sec), op, 0, 60);
+                change_operation(rtc_location.lon_sec, op, 0, 60);
             }; break;
 
 
             case CHANGE_LAT_DEG:
             {
-                change_operation(&(rtc_location.lat_deg), op, -90, 90);
+                auto temp_lat = rtc_location.lat_deg;
+                change_operation(temp_lat, op, -90, 90); 
+                rtc_location.lat_deg = temp_lat;
             }; break; 
 
             case CHANGE_LAT_MIN:
             {
-                change_operation(&(rtc_location.lat_min), op, 0, 60);
+                change_operation(rtc_location.lat_min, op, 0, 60);
             }; break;
 
             case CHANGE_LAT_SEC:
             {
-                change_operation(&(rtc_location.lat_sec), op, 0, 60);
+                change_operation(rtc_location.lat_sec, op, 0, 60);
             }; break;
 
             case CHANGE_TIMEZONE:
             {
-                change_operation(&(rtc_location.time_zone), op, -12, +14);
+                change_operation(rtc_location.time_zone, op, -12, +14);
             }; break;
 
 
@@ -398,20 +402,20 @@ HAL_StatusTypeDef eRTC::change_parameter(uint8_t parameter_name, uint16_t op)
 
 /*** служебные функции ***********************************************************************************/
 template <typename T, typename OP> 
-void eRTC::change_operation(T *ptr_param, OP op, int16_t limit_min, int16_t limit_max)
+void eRTC::change_operation(T &ptr_param, OP op, int16_t limit_min, int16_t limit_max)
 {
     switch(op)
     {
         case PLUS:
         {
-            if((*ptr_param) < limit_max) ++(*ptr_param);
-            else (*ptr_param) = limit_min;
+            if((ptr_param) < limit_max) ++(ptr_param);
+            else (ptr_param) = limit_min;
         }; break;
 
         case MINUS:
         {
-            if((*ptr_param) > limit_min) --(*ptr_param);
-            else (*ptr_param) = limit_max;
+            if((ptr_param) > limit_min) --(ptr_param);
+            else (ptr_param) = limit_max;
         }; break;
     }
 }

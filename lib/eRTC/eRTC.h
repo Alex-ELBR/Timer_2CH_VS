@@ -135,7 +135,7 @@ class eRTC
         uint8_t is_leap_year(int16_t year);
 
         template <typename T, typename OP> 
-        void change_operation(T *ptr_param, OP op, int16_t limit_min, int16_t limit_max);
+        void change_operation(T &ptr_param, OP op, int16_t limit_min, int16_t limit_max);
 
 };
 
