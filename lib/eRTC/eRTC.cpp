@@ -2,6 +2,7 @@
 
 #include "stm32f1xx_hal.h"
 #include <config_device.h>
+extern ELed led_1, led_2, led_3;
 
 
 typedef struct 
@@ -152,10 +153,12 @@ HAL_StatusTypeDef eRTC::periodic(void)
 
     int32_t lat = 0;
     int32_t lon = 0;
-    int16_t tz = 0;
-    convert_coordinate(&rtc_location, &lat, &lon, &tz);
+    int16_t tz = 0;  
 
+    convert_coordinate(&rtc_location, &lat, &lon, &tz);
     result = calculate_twilight(rtc_time.unix_time, lat, lon, tz, TwilightType::Civil);
+
+    if(result.is_valid){ led_2.blink();}
 
     return HAL_OK;
 }

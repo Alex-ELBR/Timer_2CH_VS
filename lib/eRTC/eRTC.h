@@ -9,6 +9,9 @@
 #include "unix_time.h"
 #include <twilight.hpp>
 
+#include "eLed.h"
+
+
 #define STAT_SYMBOL     false
 #define BLINK_SYMBOL    true
 
