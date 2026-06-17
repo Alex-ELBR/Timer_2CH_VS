@@ -18,10 +18,10 @@ using namespace std;
 
 
 
-const uint8_t STAT              = 0;
-const uint8_t BLINK             = 1;
-const uint8_t BLINK_HOUR        = 2;
-const uint8_t BLINK_MIN         = 3;
+constexpr uint8_t STAT              = 0;
+constexpr uint8_t BLINK             = 1;
+constexpr uint8_t BLINK_HOUR        = 2;
+constexpr uint8_t BLINK_MIN         = 3;
 
 /** содержимое одного разряда индикатора */
 typedef struct

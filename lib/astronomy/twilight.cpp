@@ -3,8 +3,8 @@
 #include <math.h>
 
 // Константа перевода градусов в радианы и обратно
-#define DEG_TO_RAD (3.141592653589793f / 180.0f)
-#define RAD_TO_DEG (180.0f / 3.141592653589793f)
+constexpr float DEG_TO_RAD = 3.14159265f / 180.0f;
+constexpr float RAD_TO_DEG = 180.0f / 3.14159265f;
 
 
 // Функция определения порядкового номера дня в году из Unix Time

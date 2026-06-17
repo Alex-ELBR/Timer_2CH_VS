@@ -13,7 +13,7 @@ using std::vector;
 using std::string;
 using std::find;
 
-const uint32_t ETASK_TIMEOUT_MS = (uint32_t)5000;
+constexpr uint32_t ETASK_TIMEOUT_MS = (uint32_t)5000;
 
 /// @brief //////////////////////////////////////////////////////////////////////
 class ETask

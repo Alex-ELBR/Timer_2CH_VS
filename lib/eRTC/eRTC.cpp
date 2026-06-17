@@ -49,10 +49,10 @@ typedef struct
 }__attribute__((__packed__)) loc_tz_data_t;
 
 /// @brief ////////////////////////////////////////////////////////////////////////////////////////////////
-const uint16_t START_ADDRESS_RTC = 0;
-const uint16_t START_ADDRESS_LONGITUDE = (uint16_t)(START_ADDRESS_RTC + sizeof(rtc_data_t));
-const uint16_t START_ADDRESS_LATITUDE = (uint16_t)(START_ADDRESS_LONGITUDE + sizeof(loc_lon_data_t));
-const uint16_t START_ADDRESS_TIMEZONE = (uint16_t)(START_ADDRESS_LATITUDE + sizeof(loc_lat_data_t));
+constexpr uint16_t START_ADDRESS_RTC = 0;
+constexpr uint16_t START_ADDRESS_LONGITUDE = (uint16_t)(START_ADDRESS_RTC + sizeof(rtc_data_t));
+constexpr uint16_t START_ADDRESS_LATITUDE = (uint16_t)(START_ADDRESS_LONGITUDE + sizeof(loc_lon_data_t));
+constexpr uint16_t START_ADDRESS_TIMEZONE = (uint16_t)(START_ADDRESS_LATITUDE + sizeof(loc_lat_data_t));
 
 
 /// @brief /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -455,11 +455,6 @@ void eRTC::convert_coordinate(const loc_data_t *data, int32_t *out_lat, int32_t 
 /******************************************************************************************************** */
 /*************************************************************************/
 const uint32_t SEC_A_DAY  = 86400;
-const uint32_t ONE_HOUR   = 3600;    /** ќдин час, выраженный в секундах */
-const uint32_t ONE_DEGREE = 3600L;   /** ”гловой градус, выраженный в угловых секундах */
-const uint32_t ONE_DAY    = 86400 ;  /** ќдин день, выраженный в секундах */
-
-
 
 void eRTC::unix_to_time(const uint32_t unix_time, real_time_t *timeptr)
 {
