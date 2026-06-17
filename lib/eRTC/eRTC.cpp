@@ -158,7 +158,8 @@ HAL_StatusTypeDef eRTC::periodic(void)
     convert_coordinate(&rtc_location, &lat, &lon, &tz);
     result = calculate_twilight(rtc_time.unix_time, lat, lon, tz, TwilightType::Civil);
 
-    if(result.is_valid){ led_2.blink();}
+    if(result.polar_day){ led_2.blink();} else{ led_2.off(); }
+    if(result.polar_night){ led_3.blink();} else{ led_3.off(); }
 
     return HAL_OK;
 }

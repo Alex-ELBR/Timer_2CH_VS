@@ -1,3 +1,4 @@
+#include <twilight.hpp>
 #include <stdint.h>
 #include <math.h>
 
@@ -5,19 +6,6 @@
 #define DEG_TO_RAD (3.141592653589793f / 180.0f)
 #define RAD_TO_DEG (180.0f / 3.141592653589793f)
 
-enum class TwilightType { 
-    Official, 
-    Civil, 
-    Nautical, 
-    Astronomical 
-};
-
-struct TwilightResult 
-{
-    uint32_t start_time; // Unix Time начала (восход/рассвет)
-    uint32_t end_time;   // Unix Time конца (закат/сумерки)
-    bool is_valid;       // false, если полярный день или ночь
-};
 
 // Функция определения порядкового номера дня в году из Unix Time
 static int get_day_of_year(uint32_t unix_time) {
@@ -38,7 +26,7 @@ static int get_day_of_year(uint32_t unix_time) {
 
 TwilightResult calculate_twilight(uint32_t unix_time, int32_t lat_scaled, int32_t lon_scaled, int16_t tz_offset_scaled, TwilightType type) 
 {
-    TwilightResult result = {0, 0, false};
+    TwilightResult result = {0, 0, false, false, false};
     
     int N = get_day_of_year(unix_time);
     
@@ -78,6 +66,16 @@ TwilightResult calculate_twilight(uint32_t unix_time, int32_t lat_scaled, int32_
 
     // Проверка на полярный день или полярную ночь
     if (cosH > 1.0f || cosH < -1.0f) {
+
+        if(cosH < -1.0f) {
+            result.polar_day = true;
+            result.polar_night = false;
+        }
+        else{
+            result.polar_day = false;
+            result.polar_night = true;
+        }
+
         return result; // возвращает is_valid = false
     }
 
