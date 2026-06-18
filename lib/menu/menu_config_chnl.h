@@ -76,7 +76,7 @@ enum _STEP_CONFIG_SELECTED_TIM_
 };
 
 
-bool menu_config_chnl(uint16_t button);
+bool menu_config_chnl(uint16_t button, Display& displ, eRTC& rtc);
 bool menu_config_ch(uint16_t button, uint8_t ch_num);
 bool menu_config_ch_func(uint16_t button, uint8_t ch_num);
 bool menu_config_ch_tim(uint16_t button, uint8_t ch_num);

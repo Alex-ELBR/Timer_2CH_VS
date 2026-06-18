@@ -1,13 +1,8 @@
 #include "menu_config_loc.h"
 
-extern Display displ;
-extern eRTC rtc;
 
 
-
-
-
-bool menu_config_loc(uint16_t button)
+bool menu_config_loc(uint16_t button, Display& displ, eRTC& rtc)
 {
     static uint8_t screen = 0;
     static uint8_t what_config = 0;

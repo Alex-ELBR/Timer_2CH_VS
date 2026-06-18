@@ -9,6 +9,7 @@
 #include <eButton.h>
 #include <eDisplay.h>
 #include <eRTC.h>
+#include <eMenu.h>
 
 
 enum _STEP_CONFIG_RTC_
@@ -25,8 +26,7 @@ enum _STEP_CONFIG_RTC_
 
 
 
-bool menu_config_rtc(uint16_t button);
-
+extern eMenu menuConfigRTC;
 
 
 #endif //__MENU_CONFIG_RTC_H

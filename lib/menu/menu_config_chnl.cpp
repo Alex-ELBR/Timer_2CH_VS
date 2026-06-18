@@ -5,7 +5,7 @@ extern Display displ;
 
 
 
-bool menu_config_chnl(uint16_t button)
+bool menu_config_chnl(uint16_t button, Display& displ, eRTC& rtc)
 {
     static uint8_t screen = 0;
     static uint8_t ch_num = 1;

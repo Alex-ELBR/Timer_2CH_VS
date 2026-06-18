@@ -4,7 +4,44 @@ extern Display displ;
 extern eRTC rtc;
 
 
-bool menu_config_rtc(uint16_t button)
+void edit_hour(void);
+void edit_minute(void);
+
+
+eMenu::Item menu_config_rtc_items[] = {
+
+    { nullptr, (const void*)edit_hour, nullptr, nullptr, nullptr },   // Настройка часов
+    { nullptr, (const void*)edit_minute, nullptr, nullptr, nullptr }  // Настройка минут
+};
+
+
+eMenu menuConfigRTC(menu_config_rtc_items, sizeof(menu_config_rtc_items) / sizeof(menu_config_rtc_items[0]));
+
+
+
+void edit_hour()
+{
+    display_clock_t edit_clocks;
+
+    edit_clocks.hour = rtc.get_hour();
+    edit_clocks.minute = rtc.get_minute();
+    edit_clocks.comma = true;
+    displ.show_clock(edit_clocks, BLINK_HOUR);
+}
+
+void edit_minute()
+{
+    display_clock_t edit_clocks;
+
+    edit_clocks.hour = rtc.get_hour();
+    edit_clocks.minute = rtc.get_minute();
+    edit_clocks.comma = true;
+    displ.show_clock(edit_clocks, BLINK_MIN);
+}
+
+
+/*
+bool menu_config_rtc(uint16_t button, Display& displ, eRTC& rtc)
 {
     // step_config остается static, чтобы сохранять шаг настройки между тактами опроса кнопок
     static uint8_t step_config = 0; 
@@ -16,6 +53,9 @@ bool menu_config_rtc(uint16_t button)
     clocks.hour = rtc.get_hour();
     clocks.minute = rtc.get_minute();
     clocks.comma = true;
+
+
+
 
     // --- 1. ОБРАБОТКА КНОПОК ---
     switch(button)
@@ -96,3 +136,4 @@ bool menu_config_rtc(uint16_t button)
 }
 
 
+*/

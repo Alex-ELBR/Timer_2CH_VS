@@ -24,13 +24,11 @@ enum STEP_STARTUP_LOAD
 
 void main_loop(void)
 {
-
-
     static uint8_t work_mode = STARTUP_LOAD;
-    //static uint8_t status = MAIN_SCREEN;
     static uint8_t startup_load_step = 0;
 
-    //static uint32_t ch_num = 0;
+    uint16_t button = keyboard.get_button();
+    
 
     switch(work_mode)
     {
@@ -122,7 +120,7 @@ void main_loop(void)
                 default:{ break; }
             }
 
-            switch(keyboard.get_button())
+            switch(button)
             {
                 case PRESS_UP:
                 {
@@ -150,7 +148,9 @@ void main_loop(void)
 
         case CONFIGURATION:
         {
-            if(!menu_main(keyboard.get_button(), displ, rtc)) work_mode = NORMAL_WORK;           
+        
+            //if(!menu_main(button, displ, rtc)) work_mode = NORMAL_WORK;           
+            if(!mainMenu.process(button, displ, rtc)) work_mode = NORMAL_WORK;           
 
         }; break;
 

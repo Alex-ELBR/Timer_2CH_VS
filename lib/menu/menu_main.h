@@ -11,23 +11,13 @@
 #include "menu_config_rtc.h"
 #include "menu_config_loc.h"
 #include "menu_config_chnl.h"
-
-enum _SCREENS_MAIN_MENU_
-{
-    SCREEN_CONF_RTC,
-    SCREEN_CONF_LOC,
-    SCREEN_CONF_CH,
-
-    LAST_MAIN_MENU,
-    ENTER_CONFIG
-};
+#include <eMenu.h>
 
 
 
 
 
-bool menu_main(uint16_t button, Display& displ, eRTC& rtc);
-
+extern eMenu mainMenu;
 
 
 

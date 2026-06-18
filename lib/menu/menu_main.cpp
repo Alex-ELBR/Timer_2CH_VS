@@ -1,10 +1,51 @@
 #include "menu_main.h"
 #include "eRTC.h" 
+#include "eDisplay.h"
+#include "eMenu.h"
+
+extern Display displ;
+extern eRTC rtc;
+
+
+
+eMenu::Item main_items[] = {
+
+    { "hour", nullptr, nullptr, &menuConfigRTC, nullptr },
+    { "Loc ", nullptr, nullptr, nullptr, nullptr }
+};
+
+eMenu mainMenu(main_items, sizeof(main_items) / sizeof(main_items[0]));
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
 extern eRTC rtc;
 
 // Определяем типы для читаемости кода
 using MenuVoidFunc = void(*)(void); // Функция инициализации (ничего не принимает, ничего не возвращает)
-using MenuSubFunc  = bool(*)(uint16_t); // Функция подменю (принимает кнопку, возвращает bool)
+using MenuSubFunc = bool(*)(uint16_t, Display&, eRTC&); // Функция подменю (принимает кнопку, возвращает bool)
 
 struct MenuItem {
     const char*  label;       // Текст для дисплея
@@ -13,9 +54,9 @@ struct MenuItem {
 };
 
 // Объявляем заглушки функций, если они объявлены ниже по коду
-bool menu_config_rtc(uint16_t button);
-bool menu_config_loc(uint16_t button);
-bool menu_config_chnl(uint16_t button);
+bool menu_config_rtc(uint16_t button, Display& displ, eRTC& rtc);
+bool menu_config_loc(uint16_t button, Display& displ, eRTC& rtc);
+bool menu_config_chnl(uint16_t button, Display& displ, eRTC& rtc);
 
 // Обертка для rtc.start_change(), так как это метод класса, а не обычная функция
 void rtc_init_wrapper() { 
@@ -42,7 +83,7 @@ bool menu_main(uint16_t button, Display& displ, eRTC& rtc)
     // 1. НАХОДИМСЯ ВНУТРИ ПОДМЕНЮ
     if (in_submenu) {
         // Передаем кнопку в подменю. Если оно вернуло false — выходим обратно
-        if (!MAIN_MENU[current_item].config_func(button)) {
+        if (!MAIN_MENU[current_item].config_func(button, displ, rtc)) {
             in_submenu = false;
         }
         return true; 
@@ -79,3 +120,5 @@ bool menu_main(uint16_t button, Display& displ, eRTC& rtc)
 
     return true;
 }
+
+*/
