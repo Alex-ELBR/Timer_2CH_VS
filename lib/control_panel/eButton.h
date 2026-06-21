@@ -7,28 +7,31 @@
 #include "stm32f1xx_hal.h"
 #include "config_device.h"
 
-enum _BUTTON_NUMBER__
-{
-    NOT_PRESED,
-    PRESS_CANCEL,        
-    PRESS_UP,           
-    PRESS_DOWN,          
-    PRESS_OK,            
-    PRESS_UP_DOWN,       
-    PRESS_OK_CANCEL,        
-};
 
 
-class EButton
+class eButton
 {
     public:
-        EButton();
+        enum ButtonNumber : uint16_t 
+        {
+            NOT_PRESSED,     
+            PRESS_CANCEL,        
+            PRESS_UP,           
+            PRESS_DOWN,          
+            PRESS_OK,            
+            PRESS_UP_DOWN,       
+            PRESS_OK_CANCEL        
+        };
+        
+        using pressed_but_t = ButtonNumber;
 
+    public:
+        eButton();
         void button_update(void);
-        uint16_t get_button(void);
+        pressed_but_t get_button(void);
 
     private:
-        uint16_t pressed_but;
+        pressed_but_t pressed_but;
         uint32_t comp;
 
 };
