@@ -17,7 +17,7 @@ class eMenu
     public:
         // Шаблонные типы функций: Display& всегда идет первым, а дальше — что угодно (Args...)
         template <typename... Args>
-        using MenuActionFunc = void(*)(uint16_t button, Display& displ, Args... args);
+        using MenuActionFunc = void(*)(uint16_t button, Args... args);
 
         template <typename... Args>
         using MenuInitFunc = void(*)(Args... args);
@@ -38,63 +38,79 @@ class eMenu
     public:
         eMenu(const Item* items, uint8_t size);
 
+        void reset();
+
         // button, displ обязательные и любое количество других параметров (часы, настройки, датчики...)
         template <typename... Args>
-        bool process(uint16_t button, Display& displ, Args... args) {
+        bool process(uint16_t button, Display& displ, Args&... args) {
             
-            // 1. ЕСЛИ АКТИВЕН ВНУТРЕННИЙ ПУНКТ
+            // 1. ЕСЛИ АКТИВЕН ВНУТРЕННИЙ ПУНКТ (подменю или действие)
             if (m_active_item != nullptr) {
+                // Вариант А: Переход во вложенное подменю
                 if (m_active_item->submenu != nullptr) {
-                    // Передаем по цепочке дисплей и все остальные аргументы в подменю
                     if (!m_active_item->submenu->process(button, displ, args...)) {
                         m_active_item = nullptr; 
                     }
                     return true;
                 }
                 
+                // Вариант Б: Выполнение конечной функции действия (редактирования)
                 if (m_active_item->action_func != nullptr) {
                     if (button == PRESS_CANCEL) {
                         m_active_item = nullptr; 
                     } else {
-                        // Приводим указатель void* обратно к нужному типу функции и вызываем её
-                        auto func = reinterpret_cast<MenuActionFunc<Args...>>(m_active_item->action_func);
+                        // Строгое приведение к типу функции действия, принимающей (button, displ, args...) по ссылке
+                        auto func = reinterpret_cast<void(*)(uint16_t, Display&, Args&...)>(m_active_item->action_func);
                         func(button, displ, args...); 
                     }
                     return true;
                 }
             }
 
-            // 2. ОТРИСОВКА ТЕКУЩЕГО ПУНКТА
+            // 2. ОТРИСОВКА ТЕКУЩЕГО ПУНКТА (СТАТИКА ИЛИ ДИНАМИКА)
             const Item& current = m_items[m_current_item];
             
             if (current.text_func != nullptr) {
-                // Приводим void* к типу функции текста и вызываем её
-                auto func = reinterpret_cast<MenuTextFunc<Args...>>(current.text_func);
-                func(displ, args...);
+                // Строгое приведение к типу функции текста, принимающей (displ, args...) по ссылке
+                auto func = reinterpret_cast<void(*)(Display&, Args&...)>(current.text_func);
+                func(displ, args...); // ИСПРАВЛЕНО: Теперь дисплей передается в функцию текста!
             } else {
                 displ.show(current.label);
             }
 
-            // 3. ОБРАБОТКА НАВИГАЦИИ КНОПКАМИ
+            // 3. ОБРАБОТКА НАВИГАЦИИ КНОПКАМИ ГЛАВНОГО МЕНЮ
             switch (button) {
-                case PRESS_UP:   if (++m_current_item >= m_size) m_current_item = 0; break;
-                case PRESS_DOWN: if (--m_current_item < 0) m_current_item = m_size - 1; break;
-                case PRESS_OK:
-                    m_active_item = &m_items[m_current_item];
-                    if (m_active_item->init_func != nullptr) {
-                        auto func = reinterpret_cast<MenuInitFunc<Args...>>(m_active_item->init_func);
-                        func(args...);
-                    }
-                    if (m_active_item->submenu != nullptr) m_active_item->submenu->reset();
+                case PRESS_UP:   
+                    if (++m_current_item >= m_size) m_current_item = 0; 
                     break;
-                case PRESS_CANCEL: return false; 
-                default: break;
+                    
+                case PRESS_DOWN: 
+                    if (--m_current_item < 0) m_current_item = m_size - 1; 
+                    break;
+                    
+            case PRESS_OK:
+                m_active_item = &m_items[m_current_item];
+                
+                if (m_active_item->init_func != nullptr) {
+                    // ИСПРАВЛЕНО: Явное приведение типа к простой функции void(*)(void) []
+                    auto func = reinterpret_cast<void(*)(void)>(m_active_item->init_func);
+                    func(); 
+                }
+                
+                if (m_active_item->submenu != nullptr) {
+                    m_active_item->submenu->reset();
+                }
+                break;
+                    
+                case PRESS_CANCEL: 
+                    return false; 
+                    
+                default: 
+                    break;
             }
 
             return true;
-        }
-
-        void reset();
+    }
 
     private:
         const Item*   m_items;        

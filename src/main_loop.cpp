@@ -150,7 +150,8 @@ void main_loop(void)
         {
         
             //if(!menu_main(button, displ, rtc)) work_mode = NORMAL_WORK;           
-            if(!mainMenu.process(button, displ, rtc)) work_mode = NORMAL_WORK;           
+            if(!mainMenu.process(button, displ, rtc)) work_mode = NORMAL_WORK;     
+            button = 0;      
 
         }; break;
 

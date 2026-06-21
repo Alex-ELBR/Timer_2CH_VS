@@ -6,12 +6,14 @@
 extern Display displ;
 extern eRTC rtc;
 
-
+void menu_сonfig_rtc(uint16_t button);
 
 eMenu::Item main_items[] = {
 
-    { "hour", nullptr, nullptr, &menuConfigRTC, nullptr },
-    { "Loc ", nullptr, nullptr, nullptr, nullptr }
+    { "Hour", nullptr, nullptr, nullptr, (void*)menu_сonfig_rtc },
+    { "dAtE", nullptr, nullptr, nullptr, nullptr },
+    { "Loc ", nullptr, nullptr, nullptr, nullptr },
+    { "Func", nullptr, nullptr, nullptr, nullptr }
 };
 
 eMenu mainMenu(main_items, sizeof(main_items) / sizeof(main_items[0]));
