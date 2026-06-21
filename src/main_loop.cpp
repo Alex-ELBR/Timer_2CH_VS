@@ -1,9 +1,9 @@
 #include <main_loop.h>
 
-extern Display displ;
+extern eDisplay displ;
 extern ELed led_1, led_2, led_3;
 extern eRTC rtc;
-extern EButton keyboard;
+extern eButton keyboard;
 extern eEEPROM eeprom;
 extern eChannel channel[CHANNEL_AMOUNT];
 extern uint8_t test_month;
@@ -14,6 +14,10 @@ display_clock_t evening_twilight_end(eRTC rtc);
 
 
 const uint8_t MAX_COUNT_MENU = 6;
+
+eMenu::Context ctx = { displ, rtc }; 
+
+
 
 
 enum STEP_STARTUP_LOAD
@@ -27,7 +31,7 @@ void main_loop(void)
     static uint8_t work_mode = STARTUP_LOAD;
     static uint8_t startup_load_step = 0;
 
-    uint16_t button = keyboard.get_button();
+    eButton::pressed_but_t button = keyboard.get_button();
     
 
     switch(work_mode)
@@ -122,24 +126,24 @@ void main_loop(void)
 
             switch(button)
             {
-                case PRESS_UP:
+                case eButton::PRESS_UP:
                 {
                     if(screen < MAX_COUNT_MENU) ++screen;
                     else screen = 0;
                 };break;
 
-                case PRESS_DOWN:
+                case eButton::PRESS_DOWN:
                 {
                     if(screen > 0) --screen;
                     else screen = MAX_COUNT_MENU;
                 };break;
 
-                case PRESS_OK:
+                case eButton::PRESS_OK:
                 {
                     work_mode = CONFIGURATION;
                 };break;
 
-                case PRESS_CANCEL:
+                case eButton::PRESS_CANCEL:
                 {
 
                 };break;
@@ -150,8 +154,8 @@ void main_loop(void)
         {
         
             //if(!menu_main(button, displ, rtc)) work_mode = NORMAL_WORK;           
-            if(!mainMenu.process(button, displ, rtc)) work_mode = NORMAL_WORK;     
-            button = 0;      
+            if(!mainMenu.process(button, ctx)) work_mode = NORMAL_WORK;     
+            button = eButton::NOT_PRESSED;      
 
         }; break;
 

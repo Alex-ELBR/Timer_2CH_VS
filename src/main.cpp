@@ -22,10 +22,10 @@ I2C_HandleTypeDef hi2c1;                // шина I2C для обмена да
 
 eDispatcher dispatcher;                 // объект диспетчера задач
 
-Display displ;
+eDisplay displ;
 eRTC rtc(&hi2c1, ADDRESS_RTC);          //обьект часов
 eEEPROM eeprom(&hi2c1, ADDRESS_EEPROM); //обьект микросхемы памяти
-EButton keyboard;
+eButton keyboard;
 eChannel channel[CHANNEL_AMOUNT];
 
 ELed led_1(LED_1_PORT, LED_1_PIN);

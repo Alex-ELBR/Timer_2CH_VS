@@ -56,11 +56,11 @@ typedef struct
 
 
 /************************************************************************/
-class Display
+class eDisplay
 {
     public:
 
-        Display();
+        eDisplay();
 
         void display_init(void);
         void display_update(void);

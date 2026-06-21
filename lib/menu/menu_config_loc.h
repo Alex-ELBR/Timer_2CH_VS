@@ -60,7 +60,7 @@ typedef struct
 
 
 
-bool menu_config_loc(uint16_t button, Display& displ, eRTC& rtc);
+bool menu_config_loc(uint16_t button, eDisplay& displ, eRTC& rtc);
 bool menu_config_loc_lon(uint16_t button);
 bool menu_config_loc_lat(uint16_t button);
 bool menu_config_loc_timezone(uint16_t button);

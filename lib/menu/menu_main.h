@@ -8,9 +8,7 @@
 #include "config_device.h"
 #include <time_common.h>
 
-#include "menu_config_rtc.h"
 #include "menu_config_loc.h"
-#include "menu_config_chnl.h"
 #include <eMenu.h>
 
 

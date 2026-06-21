@@ -2,7 +2,7 @@
 
 
 
-bool menu_config_loc(uint16_t button, Display& displ, eRTC& rtc)
+bool menu_config_loc(uint16_t button, eDisplay& displ, eRTC& rtc)
 {
     static uint8_t screen = 0;
     static uint8_t what_config = 0;
@@ -80,24 +80,24 @@ bool menu_config_loc(uint16_t button, Display& displ, eRTC& rtc)
 /******************************************************* */
     switch(button)
     {
-        case PRESS_CANCEL:
+        case eButton::PRESS_CANCEL:
         {
             return 0;
         }; break;
 
-        case PRESS_UP:
+        case eButton::PRESS_UP:
         {
             if(screen < LAST_MENU_CONF_LOC - 1) ++screen;
             else screen = 0;
         }; break;
 
-        case PRESS_DOWN:
+        case eButton::PRESS_DOWN:
         {
             if(screen > 0) --screen;
             else screen = (LAST_MENU_CONF_LOC - 1);
         }; break;
 
-        case PRESS_OK:
+        case eButton::PRESS_OK:
         {
             rtc.start_change();
             what_config = screen;

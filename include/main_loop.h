@@ -10,6 +10,8 @@
 #include "eRTC.h"
 #include "eButton.h"
 #include "eDisplay.h"
+#include "eEEPROM.h"
+#include "eChannel.h"
 
 #include <menu_main.h>
 

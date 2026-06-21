@@ -26,7 +26,6 @@ enum _STEP_CONFIG_RTC_
 
 
 
-extern eMenu menuConfigRTC;
-
+void menu_config_rtc(eButton::pressed_but_t button, eMenu::Context& ctx);
 
 #endif //__MENU_CONFIG_RTC_H

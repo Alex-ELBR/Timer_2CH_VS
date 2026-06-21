@@ -150,7 +150,7 @@ inline uint8_t  bit_is_set(uint16_t reg, uint16_t bit)
     return reg & (1 << bit);
 }
 
-void Display::display_init(void)
+void eDisplay::display_init(void)
 {
 
 }
@@ -158,7 +158,7 @@ void Display::display_init(void)
 
 
 /***********************************************************************************************/
-void Display::show(const char str[], uint8_t blink)
+void eDisplay::show(const char str[], uint8_t blink)
 {
     const char num_symbol = 48;
     bool comma_digit[4] = {false, false, false, false};
@@ -200,7 +200,7 @@ void Display::show(const char str[], uint8_t blink)
     digits.digit_1.symbol = symbol_digit[3];
 }
 
-void Display::show(const uint32_t data)
+void eDisplay::show(const uint32_t data)
 {
     bcd32_level_t show_data;
 
@@ -222,7 +222,7 @@ void Display::show(const uint32_t data)
 
 }
 
-void Display::show_clock(const display_clock_t clock, uint8_t blink)
+void eDisplay::show_clock(const display_clock_t clock, uint8_t blink)
 {
     bcd8_level_t hour, minute;
 
@@ -265,7 +265,7 @@ void Display::show_clock(const display_clock_t clock, uint8_t blink)
     }
 }
 
-void Display::show_day(const uint8_t day, uint8_t blink)
+void eDisplay::show_day(const uint8_t day, uint8_t blink)
 {
     all_digits_stat();
 
@@ -340,7 +340,7 @@ void Display::show_day(const uint8_t day, uint8_t blink)
     }
 }
 
-void Display::show_date(const uint8_t date, uint8_t blink)
+void eDisplay::show_date(const uint8_t date, uint8_t blink)
 {
     bcd8_level_t show_date;
     all_digits_stat();
@@ -369,7 +369,7 @@ void Display::show_date(const uint8_t date, uint8_t blink)
     digits.digit_1.comma = false;
 }
 
-void Display::show_month(const uint8_t month, uint8_t blink)
+void eDisplay::show_month(const uint8_t month, uint8_t blink)
 {
     all_digits_stat();
 
@@ -404,7 +404,7 @@ void Display::show_month(const uint8_t month, uint8_t blink)
     digits.digit_1.symbol = show_month.units;
 }
 
-void Display::show_year(const uint16_t year, uint8_t blink)
+void eDisplay::show_year(const uint16_t year, uint8_t blink)
 {
     bcd16_level_t show_data;
     all_digits_stat();
@@ -445,7 +445,7 @@ void Display::show_year(const uint16_t year, uint8_t blink)
 #define PARAM_SEC   2
 #define PARAM_TZ    3
 
-void Display::show_location(const int16_t loc, uint8_t param, uint8_t blink)
+void eDisplay::show_location(const int16_t loc, uint8_t param, uint8_t blink)
 {
     bcd16_level_t show_data;
     all_digits_stat();
@@ -527,16 +527,16 @@ void Display::show_location(const int16_t loc, uint8_t param, uint8_t blink)
     digits.digit_1.comma = false;
 }
 
-void Display::show_location_deg(const int16_t loc, uint8_t blink){ show_location(loc, PARAM_DEG, blink); }
-void Display::show_location_min(const int16_t loc, uint8_t blink){ show_location(loc, PARAM_MIN, blink); }
-void Display::show_location_sec(const int16_t loc, uint8_t blink){ show_location(loc, PARAM_SEC, blink); }
-void Display::show_location_tz(const int8_t time_zone, uint8_t blink){ show_location((uint16_t)time_zone, PARAM_TZ, blink); }
+void eDisplay::show_location_deg(const int16_t loc, uint8_t blink){ show_location(loc, PARAM_DEG, blink); }
+void eDisplay::show_location_min(const int16_t loc, uint8_t blink){ show_location(loc, PARAM_MIN, blink); }
+void eDisplay::show_location_sec(const int16_t loc, uint8_t blink){ show_location(loc, PARAM_SEC, blink); }
+void eDisplay::show_location_tz(const int8_t time_zone, uint8_t blink){ show_location((uint16_t)time_zone, PARAM_TZ, blink); }
 
 
 
 
 /***********************************************************************************************/
-void Display::display_char_write_pos(uint8_t value, uint8_t pos, uint8_t mode)
+void eDisplay::display_char_write_pos(uint8_t value, uint8_t pos, uint8_t mode)
 {
     all_digits_stat();
     
@@ -578,7 +578,7 @@ void Display::display_char_write_pos(uint8_t value, uint8_t pos, uint8_t mode)
 }
 
 /************************************************************************/
-void Display::display_update(void)
+void eDisplay::display_update(void)
 {
 
 	switch(step)
@@ -715,7 +715,7 @@ void Display::display_update(void)
 
 /********************************************************************************************/
 /** Конструктор класса  */
-Display::Display()
+eDisplay::eDisplay()
 {
     step = 0;
     segment = 0;
@@ -730,7 +730,7 @@ Display::Display()
 }
 
 
-void Display::all_digits_stat(void)
+void eDisplay::all_digits_stat(void)
 {
     digit_4_mode = STAT;
     digit_3_mode = STAT;
