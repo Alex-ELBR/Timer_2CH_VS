@@ -155,7 +155,7 @@ void main_loop(void)
         
             //if(!menu_main(button, displ, rtc)) work_mode = NORMAL_WORK;           
             if(!mainMenu.process(button, ctx)) work_mode = NORMAL_WORK;     
-            button = eButton::NOT_PRESSED;      
+            //button = eButton::NOT_PRESSED;      
 
         }; break;
 
