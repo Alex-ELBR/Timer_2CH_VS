@@ -31,7 +31,7 @@ class eMenu
         };
 
         // Сигнатуры функций теперь строго используют типы из eButton
-        using MenuActionFunc = void(*)(eButton::pressed_but_t button, Context& ctx);
+        using MenuActionFunc = bool(*)(eButton::pressed_but_t button, Context& ctx);
         using MenuInitFunc   = void(*)(Context& ctx);
         using MenuTextFunc   = void(*)(Context& ctx); // Функция для отрисовки динамических значений
 

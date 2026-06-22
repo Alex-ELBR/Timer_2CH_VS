@@ -2,7 +2,6 @@
 #include "eRTC.h" 
 #include "eDisplay.h"
 #include "eMenu.h"
-#include "menu_config_rtc.h"
 
 
 
@@ -10,13 +9,13 @@ extern eDisplay displ;
 extern eRTC rtc;
 
 
-//void menu_config_rtc(eButton::pressed_but_t button, eMenu::Context& ctx);
-
+bool menu_config_rtc(eButton::pressed_but_t button, eMenu::Context& ctx);
+void start_config_rtc(eMenu::Context& ctx);
 
 
 eMenu::Item main_items[] = {
-
-    { "Hour", nullptr, nullptr, nullptr, menu_config_rtc },
+    
+    { "Hour", nullptr, start_config_rtc, nullptr, menu_config_rtc },
     { "dAtE", nullptr, nullptr, nullptr, nullptr },
     { "Loc ", nullptr, nullptr, nullptr, nullptr },
     { "Func", nullptr, nullptr, nullptr, nullptr }

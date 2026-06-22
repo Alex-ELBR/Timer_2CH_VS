@@ -26,10 +26,10 @@ bool eMenu::process(eButton::pressed_but_t button, Context& ctx) {
         // Вариант Б: Мы находимся в режиме выполнения действия (например, изменение числа)
         if (m_active_item->action_func != nullptr) {
             // Передаем управление и кнопку в функцию действия
-            m_active_item->action_func(button, ctx);
+            bool exit = m_active_item->action_func(button, ctx);
             
-            // Если в режиме редактирования нажали CANCEL — выходим из этого режима назад в меню
-            if (button == eButton::PRESS_CANCEL || button == eButton::PRESS_OK_CANCEL) {
+            // Если в режиме редактирования нажали CANCEL или функция вернула false — выходим из этого режима назад в меню
+            if (button == eButton::PRESS_CANCEL || button == eButton::PRESS_OK_CANCEL || exit == false) {
                 m_active_item = nullptr;
             }
             return true;

@@ -1,4 +1,4 @@
-#include "menu_config_rtc.h"
+#include "menu_main.h"
 
 //extern eDisplay displ;
 //extern eRTC rtc;
@@ -8,54 +8,56 @@
 enum eEditStep {
     STEP_EDIT_HOURS,   // Шаг 1: Настройка часов
     STEP_EDIT_MINUTES,  // Шаг 2: Настройка минут
-    STEP_SAVE_EDIT,
 };
 
+void start_config_rtc(eMenu::Context& ctx)
+{
+    ctx.rtc.start_change();
+}
 
-void menu_config_rtc(eButton::pressed_but_t button, eMenu::Context& ctx)
+
+bool menu_config_rtc(eButton::pressed_but_t button, eMenu::Context& ctx)
 {
     // static переменные сохраняют значения между циклами вызова функции
     static eEditStep current_step = STEP_EDIT_HOURS;
 
 
-    // 1. ОБРАБОТКА НАЖАТИЯ КНОПОК
-    if (current_step == STEP_EDIT_HOURS) 
+    switch(current_step)
     {
-        // --- ЛОГИКА ИЗМЕНЕНИЯ ЧАСОВ ---
-        if (button == eButton::PRESS_UP) {
-            ctx.rtc.change_parameter(CHANGE_HOUR, PLUS);
-        }
-        if (button == eButton::PRESS_DOWN) {
-            ctx.rtc.change_parameter(CHANGE_HOUR, MINUS);
-        }
-        
-        // Нажали ENTER/OK -> переключаемся на настройку минут!
-        if (button == eButton::PRESS_OK) {
-            current_step = STEP_EDIT_MINUTES;
+        case STEP_EDIT_HOURS: 
+        {
+            // --- ЛОГИКА ИЗМЕНЕНИЯ ЧАСОВ ---
+            if (button == eButton::PRESS_UP) {
+                ctx.rtc.change_parameter(CHANGE_HOUR, PLUS);
+            }
+            if (button == eButton::PRESS_DOWN) {
+                ctx.rtc.change_parameter(CHANGE_HOUR, MINUS);
+            }
             
-            // Сбрасываем кнопку, чтобы она случайно не сработала на следующем шаге
-            button = eButton::NOT_PRESSED; 
-        }
-    }
-    
-    if (current_step == STEP_EDIT_MINUTES) 
-    {
-        // --- ЛОГИКА ИЗМЕНЕНИЯ МИНУТ ---
-        if (button == eButton::PRESS_UP) {
-            ctx.rtc.change_parameter(CHANGE_MINUTE, PLUS);
-        }
-        if (button == eButton::PRESS_DOWN) {
-            ctx.rtc.change_parameter(CHANGE_MINUTE, MINUS);
-        }
-        
-        // Нажали ENTER/OK на минутах -> завершаем настройку и выходим обратно в меню!
-        if (button == eButton::PRESS_OK) {
+            // Нажали ENTER/OK -> переключаемся на настройку минут!
+            if (button == eButton::PRESS_OK) {
+                current_step = STEP_EDIT_MINUTES;
+            }
+        } break;
 
-            ctx.rtc.change_parameter(0, APPLY_RTC); // Сохраняем
-            current_step = STEP_EDIT_HOURS; // Сбрасываем шаги на начало            
-
-            button = eButton::PRESS_CANCEL; 
-        }
+        case STEP_EDIT_MINUTES: 
+        {
+            // --- ЛОГИКА ИЗМЕНЕНИЯ МИНУТ ---
+            if (button == eButton::PRESS_UP) {
+                ctx.rtc.change_parameter(CHANGE_MINUTE, PLUS);
+            }
+            if (button == eButton::PRESS_DOWN) {
+                ctx.rtc.change_parameter(CHANGE_MINUTE, MINUS);
+            }
+            
+            // Нажали ENTER/OK на минутах -> завершаем настройку и выходим обратно в меню!
+            if (button == eButton::PRESS_OK) {
+                ctx.rtc.change_parameter(0, APPLY_RTC); // Сохраняем
+                current_step = STEP_EDIT_HOURS; // Сбрасываем шаги на начало            
+                ctx.rtc.stop_change();
+                return false; 
+            }
+        } break;
     }
 
 
@@ -77,7 +79,11 @@ void menu_config_rtc(eButton::pressed_but_t button, eMenu::Context& ctx)
     // Если пользователь на любом этапе нажал кнопку НАЗАД/CANCEL — сбрасываем шаг
     if (button == eButton::PRESS_CANCEL) {
         current_step = STEP_EDIT_HOURS;
+        return false;
+    
     }
+
+    return true;
 }
 
 
