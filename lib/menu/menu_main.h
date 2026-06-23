@@ -18,7 +18,8 @@
 extern eMenu mainMenu;
 
 
-
+bool menu_config_rtc(eButton::pressed_but_t button, eMenu::Context& ctx);
+void start_config_rtc(eMenu::Context& ctx);
 
 
 
