@@ -10,23 +10,29 @@ extern eRTC rtc;
 
 
 
+/** Подменю настройки локации *************************************************************/
 
+eMenu::Item menu_loc_items[] = {
+    
+    { "LOn ", nullptr, nullptr, nullptr, nullptr },
+    { "LAt ", nullptr, nullptr, nullptr, nullptr },
+    { "UtC  ", nullptr, nullptr, nullptr, nullptr },
+};
 
+eMenu locationMenu(menu_loc_items, sizeof(menu_loc_items) / sizeof(menu_loc_items[0]));
+/**************************************************************************************** */
+
+/** Главное меню **************************************************************************/
 eMenu::Item main_items[] = {
     
-    { "Hour", nullptr, start_config_rtc, nullptr, menu_config_rtc },
+    { "Hour", nullptr, start_config_rtc, nullptr, menu_config_rtc }, 
     { "dAtE", nullptr, nullptr, nullptr, nullptr },
-    { "Loc ", nullptr, nullptr, nullptr, nullptr },
+    { "Loc ", nullptr, nullptr, &locationMenu, nullptr }, //Подменю настройки локации
     { "Func", nullptr, nullptr, nullptr, nullptr }
 };
 
 eMenu mainMenu(main_items, sizeof(main_items) / sizeof(main_items[0]));
-
-
-
-
-
-
+/**************************************************************************************** */
 
 
 

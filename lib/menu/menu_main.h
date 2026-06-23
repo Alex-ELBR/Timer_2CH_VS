@@ -17,9 +17,14 @@
 
 extern eMenu mainMenu;
 
-
-bool menu_config_rtc(eButton::pressed_but_t button, eMenu::Context& ctx);
 void start_config_rtc(eMenu::Context& ctx);
+
+
+bool menu_config_rtc(eButton::pressed_but_t button, eMenu::Context& ctx); // настройка времени (часыб минуты)
+bool menu_config_loc_lon(eButton::pressed_but_t button, eMenu::Context& ctx); // настройка географических координат - долгота
+bool menu_config_loc_lat(eButton::pressed_but_t button, eMenu::Context& ctx); // настройка географических координат - широта
+bool menu_config_loc_tz(eButton::pressed_but_t button, eMenu::Context& ctx); // настройка географических координат - часовой пояс
+
 
 
 
