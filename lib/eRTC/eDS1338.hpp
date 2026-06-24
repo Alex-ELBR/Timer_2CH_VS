@@ -41,6 +41,7 @@ enum _TYPE_PARAMETER_NAME_RTC_
 
 
 //размещение данных в микросхеме RTC DS1338
+#pragma pack(push, 1)
 typedef struct 
 {
     uint8_t  second;          /**< секунды           - [ 0 to 59 ] */
@@ -51,17 +52,38 @@ typedef struct
     uint8_t  month;           /**< месяц             - [ 1 to 12 ] */
     uint8_t  year;            /**< год               - [ 00 - 99 ] */
     uint8_t  control;
-    int16_t  lat_deg;         /**< широта, градусы  */
-    uint8_t  lat_min;         /**< широта, минуты   */
-    uint8_t  lat_sec;         /**< широта, секунды  */
-    int16_t  lon_deg;         /**< долгота, градусы */  
-    uint8_t  lon_min;         /**< долгота, минуты  */
-    uint8_t  lon_sec;         /**< долгота, секунды */
-    int8_t   time_zone;       /**< временная зона   */  
+    float    latitude;        /**< географическая широта           */
+    float    longitude;       /**< географическая долгота          */
+    float    time_zone;       /**< часовой пояс                    */
    
-}__attribute__((__packed__)) ds1338_buffer_t;
+} ds1338_data_t;
+#pragma pack(pop)
+
+typedef struct
+{
+    uint8_t  second;             /**< seconds after the minute - [ 0 to 59 ] */
+    uint8_t  sec_comma;          /**< секундная точка */
+    uint8_t  minute;             /**< minutes after the hour - [ 0 to 59 ] */
+    uint8_t  hour;               /**< hours since midnight - [ 0 to 23 ] */
+    uint8_t  day;                /**< days since Sunday - [ 0 to 6 ] */
+    uint8_t  date;               /**< day of the month - [ 1 to 31 ] */
+    uint8_t  month;              /**< months since January - [ 0 to 11 ] */
+    uint16_t year;               /**< years since 1900 */
+    uint32_t unix_time;
+    uint32_t sec_only_day;       /** кол-во секунд с начала суток (с 00:00) **/
+    uint32_t sec_week;           /** кол-во секунд с начала недели (с 00:00 ПН) **/
+    uint32_t sun_set;            /** время заката солнца **/
+    uint32_t sun_rise;           /** время восхода солнца **/
+    uint32_t twilight_set;       /** время начала гражданских сумерек **/
+    uint32_t twilight_rise;      /** время окончания гражданских сумерек **/
+    bool     polar_day;          /** это полярный день? **/
+    bool     polar_night;        /** это полярная ночь? **/
+    float    latitude;           /**< географическая широта           */
+    float    longitude;          /**< географическая долгота          */
+    float    time_zone;          /**< часовой пояс                    */
 
 
+} real_time_t; //структура данных времени
 
 
 /********************************************************************************************* */
@@ -70,7 +92,6 @@ class eDS1338
     public:
         eDS1338(I2C_HandleTypeDef *i2c_obj, uint16_t address);
 
-        void init(void);
         HAL_StatusTypeDef periodic(void);
 
         /* Операции чтения данных часов */
@@ -105,23 +126,25 @@ class eDS1338
 
 
     private:
-        I2C_HandleTypeDef *i2c_bus;
-        uint16_t dev_address;
+        I2C_HandleTypeDef *_i2c_bus;
+        uint16_t _dev_address;
+        uint8_t _rtc_buffer[sizeof(ds1338_data_t)];
+        ds1338_data_t _rtc_data{0};
+        real_time_t _real_time;
 
-        bool is_config;
-        real_time_t rtc_time = {0};
-        loc_data_t rtc_location = {0};
-        uint8_t rtc_buffer[sizeof(rtc_data_t)+sizeof(loc_data_t)];  
-        uint8_t loc_buffer[sizeof(loc_data_t)];
-        
-        void convert_coordinate(const loc_data_t *data, float *out_lat, float *out_lon, float *tz);
+        void convert_coordinate(const  ds1338_data_t *rtc_data, float *out_lat, float *out_lon, float *tz);
+
+        template <typename T, typename OP> 
+        void change_operation(T &ptr_param, OP op, int16_t limit_min, int16_t limit_max);
+
         void unix_to_time(const uint32_t unix_time, real_time_t *timeptr);
         uint32_t time_to_unix(const real_time_t *timeptr);
         uint8_t unix_to_weekday(const uint32_t unix_time);
         uint8_t is_leap_year(int16_t year);
 
-        template <typename T, typename OP> 
-        void change_operation(T &ptr_param, OP op, int16_t limit_min, int16_t limit_max);
+
+
+
 
 };
 

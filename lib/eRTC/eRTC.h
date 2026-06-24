@@ -8,6 +8,7 @@
 #include "stm32f1xx_hal.h"
 #include <time_common.h>
 #include <twilight.hpp>
+#include <eDS1338.hpp>
 
 #include "eLed.h"
 
@@ -23,33 +24,7 @@ enum _SCREEN_CONF_
     CONF_CH
 };
 
-// типы для параметра "op" функции change_parameter() 
-enum _TYPE_OP_ 
-{
-    APPLY_RTC,
-    APPLY_LOC_LON,
-    APPLY_LOC_LAT,
-    APPLY_LOC_TIMEZONE
-};
 
-// типы для параметра "parameter_name" функции change_parameter()
-enum _TYPE_PARAMETER_NAME_RTC_
-{
-    CHANGE_HOUR,
-    CHANGE_MINUTE,
-    CHANGE_DAY,
-    CHANGE_DATE,
-    CHANGE_MONTH,
-    CHANGE_YEAR,
-
-    CHANGE_LON_DEG,
-    CHANGE_LON_MIN,
-    CHANGE_LON_SEC,
-    CHANGE_LAT_DEG,
-    CHANGE_LAT_MIN,
-    CHANGE_LAT_SEC,
-    CHANGE_TIMEZONE
-};
 
 
 typedef struct 
