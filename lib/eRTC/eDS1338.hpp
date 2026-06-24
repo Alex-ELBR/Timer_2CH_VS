@@ -40,30 +40,28 @@ enum _TYPE_PARAMETER_NAME_RTC_
 };
 
 
+//размещение данных в микросхеме RTC DS1338
 typedef struct 
 {
-    uint8_t second;
-    uint8_t minute;
-    uint8_t hour;
-    uint8_t day;
-    uint8_t date;
-    uint8_t month;
-    uint8_t year;
-    uint8_t control;
-   
-} rtc_data_t;
-
-typedef struct 
-{
+    uint8_t  second;          /**< секунды           - [ 0 to 59 ] */
+    uint8_t  minute;          /**< минуты            - [ 0 to 59 ] */
+    uint8_t  hour;            /**< часы              - [ 0 to 23 ] */
+    uint8_t  day;             /**< день недели       - [ 1 to 7 ]  */
+    uint8_t  date;            /**< число календарное - [ 1 to 31 ] */
+    uint8_t  month;           /**< месяц             - [ 1 to 12 ] */
+    uint8_t  year;            /**< год               - [ 00 - 99 ] */
+    uint8_t  control;
     int16_t  lat_deg;         /**< широта, градусы  */
     uint8_t  lat_min;         /**< широта, минуты   */
     uint8_t  lat_sec;         /**< широта, секунды  */
     int16_t  lon_deg;         /**< долгота, градусы */  
     uint8_t  lon_min;         /**< долгота, минуты  */
     uint8_t  lon_sec;         /**< долгота, секунды */
-    int8_t   time_zone;       /**< временная зона   */    
-    
-}__attribute__((__packed__)) loc_data_t;
+    int8_t   time_zone;       /**< временная зона   */  
+   
+}__attribute__((__packed__)) ds1338_buffer_t;
+
+
 
 
 /********************************************************************************************* */
