@@ -37,16 +37,18 @@ eDS1338::eDS1338(I2C_HandleTypeDef *i2c_obj, uint16_t address)
 HAL_StatusTypeDef eDS1338::periodic(void)
 {
     HAL_StatusTypeDef status;
-    uint8_t reg_addr = 0x00;
+    uint8_t start_addr = 0;
     ds1338_data_t *ptr_rtc_buffer = (ds1338_data_t*)_rtc_buffer;
     
-    // 1. Устанавливаем указатель адреса в DS1338 на регистр 0x00
-    status = HAL_I2C_Master_Transmit(_i2c_bus, _dev_address, &reg_addr, 1, 100);
-    if (status != HAL_OK) return status;
-    
-    // 2. Считываем сырые байты напрямую в целевую структуру
-    status = HAL_I2C_Master_Receive(_i2c_bus, _dev_address, _rtc_buffer, sizeof(ds1338_data_t), 100);
-    if (status != HAL_OK) return status;
+    while(HAL_I2C_Master_Transmit(_i2c_bus, (_dev_address << 1), &start_addr, 1, HAL_I2C_ERROR_TIMEOUT ) != HAL_OK) 
+    {
+        return HAL_TIMEOUT;
+    }
+
+    while(HAL_I2C_Master_Receive(_i2c_bus, (_dev_address << 1), _rtc_buffer, sizeof(ds1338_data_t), HAL_I2C_ERROR_TIMEOUT) != HAL_OK) 
+    {
+        return HAL_TIMEOUT;
+    }
     
     // 3. Конвертируем полученное BCD-время в нормальный вид (HEX/DEC)
     _real_time.second = rtc_bcd_to_dec(ptr_rtc_buffer->second & 0x7F); // Маска 0x7F убирает флаг CH (Clock Halt)
