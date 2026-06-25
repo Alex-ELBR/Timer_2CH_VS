@@ -238,7 +238,7 @@ HAL_StatusTypeDef eDS1338::change_parameter(Parameter parameter_name, TypeOp op)
         case Parameter::LAT_MIN:
         {
             float_to_dms(_real_time.latitude, &lat_deg, &lat_min, &lat_sec); 
-            change_operation(lat_min, op, -90, 90);
+            change_operation(lat_min, op, 0, 60);
             _real_time.latitude = dms_to_float(lat_deg, lat_min, lat_sec);
             break;
         }
@@ -246,13 +246,13 @@ HAL_StatusTypeDef eDS1338::change_parameter(Parameter parameter_name, TypeOp op)
         case Parameter::LAT_SEC:
         {
             float_to_dms(_real_time.latitude, &lat_deg, &lat_min, &lat_sec); 
-            change_operation(lat_sec, op, -90, 90);
+            change_operation(lat_sec, op, 0, 60);
             _real_time.latitude = dms_to_float(lat_deg, lat_min, lat_sec);
             break;
         }
 
         case Parameter::TIMEZONE:
-            {
+        {
             change_operation(_real_time.time_zone, op, -12.0, +14.0);
         }; break;
 
