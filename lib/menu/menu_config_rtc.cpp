@@ -13,7 +13,7 @@ enum eEditStep {
 
 void start_config_rtc(eMenu::Context& ctx)
 {
-   // ctx.rtc.start_change();
+   ctx.rtc.rtc_suspend();
 }
 
 
@@ -55,7 +55,7 @@ bool menu_config_rtc(eButton::pressed_but_t button, eMenu::Context& ctx)
             if (button == eButton::PRESS_OK) {
                 ctx.rtc.change_parameter(Parameter::EMPTY, TypeOp::APPLY_RTC); // Сохраняем
                 current_step = STEP_EDIT_HOURS; // Сбрасываем шаги на начало            
-                //ctx.rtc.stop_change();
+                ctx.rtc.rtc_resume();
                 return false; 
             }
         } break;
@@ -80,6 +80,7 @@ bool menu_config_rtc(eButton::pressed_but_t button, eMenu::Context& ctx)
     // Если пользователь на любом этапе нажал кнопку НАЗАД/CANCEL — сбрасываем шаг
     if (button == eButton::PRESS_CANCEL) {
         current_step = STEP_EDIT_HOURS;
+        ctx.rtc.rtc_resume();
         return false;
     
     }

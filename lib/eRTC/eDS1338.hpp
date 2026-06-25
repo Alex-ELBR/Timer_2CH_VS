@@ -107,6 +107,8 @@ class eDS1338
         void get_civil_dusk(uint8_t &hour, uint8_t &minute); // Конец вечерних гражданских сумерек
 
         /* Операции изменения данных часов */
+        void rtc_suspend(void);
+        void rtc_resume(void);
         HAL_StatusTypeDef change_parameter(Parameter parameter_name, TypeOp op);
 
 
@@ -124,10 +126,7 @@ class eDS1338
         uint8_t unix_to_weekday(const uint32_t unix_time);
         uint8_t is_leap_year(int16_t year);
 
-
-
-
-
+        bool _rtc_working{true};
 };
 
 

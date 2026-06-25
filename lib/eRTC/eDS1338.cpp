@@ -15,7 +15,8 @@ static inline uint8_t rtc_bcd_to_dec(uint8_t val) {
 static inline float dms_to_float(int16_t deg, uint8_t min, uint8_t sec);
 static inline void float_to_dms(float decimal, int16_t *deg, uint8_t *min, uint8_t *sec);
 
-
+void eDS1338::rtc_suspend(void){ _rtc_working = false; }
+void eDS1338::rtc_resume(void){ _rtc_working = true; }
 
 /*******************************************************************************
  * Конструктор
@@ -36,9 +37,10 @@ eDS1338::eDS1338(I2C_HandleTypeDef *i2c_obj, uint16_t address)
  */
 HAL_StatusTypeDef eDS1338::periodic(void)
 {
-    HAL_StatusTypeDef status;
     uint8_t start_addr = 0;
     ds1338_data_t *ptr_rtc_buffer = (ds1338_data_t*)_rtc_buffer;
+
+    if(!_rtc_working) return HAL_OK;
     
     while(HAL_I2C_Master_Transmit(_i2c_bus, (_dev_address << 1), &start_addr, 1, HAL_I2C_ERROR_TIMEOUT ) != HAL_OK) 
     {
@@ -94,73 +96,87 @@ HAL_StatusTypeDef eDS1338::change_parameter(Parameter parameter_name, TypeOp op)
     } ds1338_data_time_t;
     #pragma pack(pop)
 
+    static bool start_change = false;
 
-    static real_time_t temp_parameter = _real_time;
-    uint16_t block_size = 0;
-    uint16_t start_addr = 0;
-
-    if(op == TypeOp::APPLY_RTC)
+    if(op == TypeOp::APPLY_RTC || op == TypeOp::APPLY_LATITUDE || op == TypeOp::APPLY_LONGITUDE || op == TypeOp::APPLY_TIMEZONE)
     {
-        start_addr = 0;
-        block_size = sizeof(ds1338_data_time_t);
-        ds1338_data_time_t *ptr_rtc_buffer = (ds1338_data_time_t*)_rtc_buffer;
+        uint16_t block_size = 0;
+        uint16_t start_addr = 0;
 
-        ptr_rtc_buffer->second = 0; // запуск часов
-        ptr_rtc_buffer->minute = rtc_dec_to_bcd(temp_parameter.minute);
-        ptr_rtc_buffer->hour = rtc_dec_to_bcd(temp_parameter.hour);
-        ptr_rtc_buffer->date = rtc_dec_to_bcd(temp_parameter.date);
-        ptr_rtc_buffer->month = rtc_dec_to_bcd(temp_parameter.month);
-        ptr_rtc_buffer->year = rtc_dec_to_bcd(temp_parameter.year - 2000);
+        if(op == TypeOp::APPLY_RTC)
+        {
+            start_addr = 0;
+            block_size = sizeof(ds1338_data_time_t);
+            ds1338_data_time_t *ptr_rtc_buffer = (ds1338_data_time_t*)_rtc_buffer;
 
-    }
+            ptr_rtc_buffer->second = 0; // запуск часов
+            ptr_rtc_buffer->minute = rtc_dec_to_bcd(_real_time.minute);
+            ptr_rtc_buffer->hour = rtc_dec_to_bcd(_real_time.hour);
+            ptr_rtc_buffer->date = rtc_dec_to_bcd(_real_time.date);
+            ptr_rtc_buffer->month = rtc_dec_to_bcd(_real_time.month);
+            ptr_rtc_buffer->year = rtc_dec_to_bcd(_real_time.year - 2000);
 
-    else if(op == TypeOp::APPLY_LATITUDE)
-    {
-        start_addr = sizeof(ds1338_data_time_t);
-        block_size = sizeof(float);
-        float *ptr_latitude = (float*)_rtc_buffer;
+        }
 
-        *ptr_latitude = temp_parameter.latitude;
-    }
+        else if(op == TypeOp::APPLY_LATITUDE)
+        {
+            start_addr = sizeof(ds1338_data_time_t);
+            block_size = sizeof(float);
+            float *ptr_latitude = (float*)_rtc_buffer;
 
-    else if(op == TypeOp::APPLY_LONGITUDE)
-    {
-        start_addr = sizeof(ds1338_data_time_t) + sizeof(float);
-        block_size = sizeof(float);
-        float *ptr_longitude = (float*)_rtc_buffer;
-        *ptr_longitude = temp_parameter.longitude;
-    }
+            *ptr_latitude = _real_time.latitude;
+        }
 
-    while(HAL_I2C_Mem_Write(_i2c_bus, (_dev_address << 1), start_addr, I2C_MEMADD_SIZE_8BIT, _rtc_buffer, block_size, HAL_I2C_ERROR_TIMEOUT ) != HAL_OK) 
-    {
-        return HAL_TIMEOUT;
+        else if(op == TypeOp::APPLY_LONGITUDE)
+        {
+            start_addr = sizeof(ds1338_data_time_t) + sizeof(float);
+            block_size = sizeof(float);
+            float *ptr_longitude = (float*)_rtc_buffer;
+            *ptr_longitude = _real_time.longitude;
+        }
+
+        else if(op == TypeOp::APPLY_TIMEZONE)
+        {
+            start_addr = sizeof(ds1338_data_time_t) + sizeof(float) + sizeof(float);
+            block_size = sizeof(float);
+            float *ptr_timezone = (float*)_rtc_buffer;
+            *ptr_timezone = _real_time.time_zone;
+        }
+
+        while(HAL_I2C_Mem_Write(_i2c_bus, (_dev_address << 1), start_addr, I2C_MEMADD_SIZE_8BIT, _rtc_buffer, block_size, HAL_I2C_ERROR_TIMEOUT ) != HAL_OK) 
+        {
+            return HAL_TIMEOUT;
+        }
+        
+        start_change = false;
+        return HAL_OK;
     }
 
 /*----------------------------------------------------------------------------------------------------------------------------*/
     switch(parameter_name)
     {
-        case Parameter::HOUR:   change_operation(temp_parameter.hour, op, 0, 23); break;
-        case Parameter::MINUTE: change_operation(temp_parameter.minute, op, 0, 59); break;  
-        case Parameter::DAY:    change_operation(temp_parameter.day, op, MONDAY, SUNDAY); break;   
-        case Parameter::MONTH:  change_operation(temp_parameter.month, op, JANUARY, DECEMBER); break; 
-        case Parameter::YEAR:   change_operation(temp_parameter.year, op, 2000, 2100); break;    
+        case Parameter::HOUR:   change_operation(_real_time.hour, op, 0, 23); break;
+        case Parameter::MINUTE: change_operation(_real_time.minute, op, 0, 59); break;  
+        case Parameter::DAY:    change_operation(_real_time.day, op, MONDAY, SUNDAY); break;   
+        case Parameter::MONTH:  change_operation(_real_time.month, op, JANUARY, DECEMBER); break; 
+        case Parameter::YEAR:   change_operation(_real_time.year, op, 2000, 2100); break;    
 
         case Parameter::DATE:
         {
             uint16_t limit_date_max;
 
-            if(temp_parameter.month == APRIL || temp_parameter.month == JUNE || temp_parameter.month == SEPTEMBER || temp_parameter.month == NOVEMBER) 
+            if(_real_time.month == APRIL || _real_time.month == JUNE || _real_time.month == SEPTEMBER || _real_time.month == NOVEMBER) 
             {
                 limit_date_max = 30;
             }
-            else if(temp_parameter.month == FEBRUARY)
+            else if(_real_time.month == FEBRUARY)
             {
-                if(is_leap_year(temp_parameter.year)) limit_date_max = 29;
+                if(is_leap_year(_real_time.year)) limit_date_max = 29;
                 else limit_date_max = 28;
             }
             else limit_date_max = 31;
 
-            change_operation(temp_parameter.date, op, 0, limit_date_max);
+            change_operation(_real_time.date, op, 0, limit_date_max);
             break;
         } 
 
