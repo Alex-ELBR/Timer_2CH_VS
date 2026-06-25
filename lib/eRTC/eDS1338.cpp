@@ -87,31 +87,45 @@ HAL_StatusTypeDef eDS1338::change_parameter(Parameter parameter_name, TypeOp op)
         uint8_t  second;          /**< секунды           - [ 0 to 59 ] */
         uint8_t  minute;          /**< минуты            - [ 0 to 59 ] */
         uint8_t  hour;            /**< часы              - [ 0 to 23 ] */
+  
+    } ds1338_time_t;
+    #pragma pack(pop)
+
+    #pragma pack(push, 1)
+    typedef struct 
+    {
         uint8_t  day;             /**< день недели       - [ 1 to 7 ]  */
         uint8_t  date;            /**< число календарное - [ 1 to 31 ] */
         uint8_t  month;           /**< месяц             - [ 1 to 12 ] */
         uint8_t  year;            /**< год               - [ 00 - 99 ] */
         uint8_t  control;
     
-    } ds1338_data_time_t;
+    } ds1338_date_t;
     #pragma pack(pop)
 
-    static bool start_change = false;
 
-    if(op == TypeOp::APPLY_RTC || op == TypeOp::APPLY_LATITUDE || op == TypeOp::APPLY_LONGITUDE || op == TypeOp::APPLY_TIMEZONE)
+    if(op == TypeOp::APPLY_TIME || op == TypeOp::APPLY_DATE || op == TypeOp::APPLY_LATITUDE || op == TypeOp::APPLY_LONGITUDE || op == TypeOp::APPLY_TIMEZONE)
     {
         uint16_t block_size = 0;
         uint16_t start_addr = 0;
 
-        if(op == TypeOp::APPLY_RTC)
+        if(op == TypeOp::APPLY_TIME)
         {
             start_addr = 0;
-            block_size = sizeof(ds1338_data_time_t);
-            ds1338_data_time_t *ptr_rtc_buffer = (ds1338_data_time_t*)_rtc_buffer;
+            block_size = sizeof(ds1338_time_t);
+            ds1338_time_t *ptr_rtc_buffer = (ds1338_time_t*)_rtc_buffer;
 
             ptr_rtc_buffer->second = 0; // запуск часов
             ptr_rtc_buffer->minute = rtc_dec_to_bcd(_real_time.minute);
             ptr_rtc_buffer->hour = rtc_dec_to_bcd(_real_time.hour);
+        }
+
+        else if(op == TypeOp::APPLY_DATE)
+        {
+            start_addr = sizeof(ds1338_time_t);
+            block_size = sizeof(ds1338_date_t);
+            ds1338_date_t *ptr_rtc_buffer = (ds1338_date_t*)_rtc_buffer;
+
             ptr_rtc_buffer->date = rtc_dec_to_bcd(_real_time.date);
             ptr_rtc_buffer->month = rtc_dec_to_bcd(_real_time.month);
             ptr_rtc_buffer->year = rtc_dec_to_bcd(_real_time.year - 2000);
@@ -120,7 +134,7 @@ HAL_StatusTypeDef eDS1338::change_parameter(Parameter parameter_name, TypeOp op)
 
         else if(op == TypeOp::APPLY_LATITUDE)
         {
-            start_addr = sizeof(ds1338_data_time_t);
+            start_addr = sizeof(ds1338_time_t) + sizeof(ds1338_date_t);
             block_size = sizeof(float);
             float *ptr_latitude = (float*)_rtc_buffer;
 
@@ -129,7 +143,7 @@ HAL_StatusTypeDef eDS1338::change_parameter(Parameter parameter_name, TypeOp op)
 
         else if(op == TypeOp::APPLY_LONGITUDE)
         {
-            start_addr = sizeof(ds1338_data_time_t) + sizeof(float);
+            start_addr = sizeof(ds1338_time_t) + sizeof(ds1338_date_t) + sizeof(float);
             block_size = sizeof(float);
             float *ptr_longitude = (float*)_rtc_buffer;
             *ptr_longitude = _real_time.longitude;
@@ -137,7 +151,7 @@ HAL_StatusTypeDef eDS1338::change_parameter(Parameter parameter_name, TypeOp op)
 
         else if(op == TypeOp::APPLY_TIMEZONE)
         {
-            start_addr = sizeof(ds1338_data_time_t) + sizeof(float) + sizeof(float);
+            start_addr = sizeof(ds1338_time_t) + sizeof(ds1338_date_t) + sizeof(float) + sizeof(float);
             block_size = sizeof(float);
             float *ptr_timezone = (float*)_rtc_buffer;
             *ptr_timezone = _real_time.time_zone;
@@ -147,14 +161,21 @@ HAL_StatusTypeDef eDS1338::change_parameter(Parameter parameter_name, TypeOp op)
         {
             return HAL_TIMEOUT;
         }
-        
-        start_change = false;
+
         return HAL_OK;
     }
 
 /*----------------------------------------------------------------------------------------------------------------------------*/
+    int16_t lon_deg = 0;
+    uint8_t lon_min = 0;
+    uint8_t lon_sec = 0;
+    int16_t lat_deg = 0;
+    uint8_t lat_min = 0;
+    uint8_t lat_sec = 0;
+
     switch(parameter_name)
     {
+
         case Parameter::HOUR:   change_operation(_real_time.hour, op, 0, 23); break;
         case Parameter::MINUTE: change_operation(_real_time.minute, op, 0, 59); break;  
         case Parameter::DAY:    change_operation(_real_time.day, op, MONDAY, SUNDAY); break;   
@@ -180,50 +201,63 @@ HAL_StatusTypeDef eDS1338::change_parameter(Parameter parameter_name, TypeOp op)
             break;
         } 
 
-            
-        /*
+////////////////////////////////////////
         case Parameter::LON_DEG:
         {
-            int16_t temp_lon = temp_parameter.lon_deg; 
-            change_operation(temp_lon, op, -180, 180);
-            rtc_location.lon_deg = temp_lon;
-        }; break; 
+            float_to_dms(_real_time.longitude, &lon_deg, &lon_min, &lon_sec); 
+            change_operation(lon_deg, op, -180, 180);
+            _real_time.longitude = dms_to_float(lon_deg, lon_min, lon_sec);
+            break;
+        } 
 
         case Parameter::LON_MIN:
         {
-            change_operation(rtc_location.lon_min, op, 0, 60);
-        }; break;
+            float_to_dms(_real_time.longitude, &lon_deg, &lon_min, &lon_sec); 
+            change_operation(lon_min, op, 0, 60);
+            _real_time.longitude = dms_to_float(lon_deg, lon_min, lon_sec);
+            break;
+        }
 
         case Parameter::LON_SEC:
         {
-            change_operation(rtc_location.lon_sec, op, 0, 60);
+            float_to_dms(_real_time.longitude, &lon_deg, &lon_min, &lon_sec); 
+            change_operation(lon_sec, op, 0, 60);
+            _real_time.longitude = dms_to_float(lon_deg, lon_min, lon_sec);
+            break;
+        }
+
+////////////////////////////////////////
+        case Parameter::LAT_DEG:
+        {
+            float_to_dms(_real_time.latitude, &lat_deg, &lat_min, &lat_sec); 
+            change_operation(lat_deg, op, -90, 90);
+            _real_time.latitude = dms_to_float(lat_deg, lat_min, lat_sec);
+            break;
+        } 
+
+        case Parameter::LAT_MIN:
+        {
+            float_to_dms(_real_time.latitude, &lat_deg, &lat_min, &lat_sec); 
+            change_operation(lat_min, op, -90, 90);
+            _real_time.latitude = dms_to_float(lat_deg, lat_min, lat_sec);
+            break;
+        }
+
+        case Parameter::LAT_SEC:
+        {
+            float_to_dms(_real_time.latitude, &lat_deg, &lat_min, &lat_sec); 
+            change_operation(lat_sec, op, -90, 90);
+            _real_time.latitude = dms_to_float(lat_deg, lat_min, lat_sec);
+            break;
+        }
+
+        case Parameter::TIMEZONE:
+            {
+            change_operation(_real_time.time_zone, op, -12.0, +14.0);
         }; break;
 
-
-            case Parameter::LAT_DEG:
-            {
-                int16_t temp_lat = rtc_location.lat_deg;
-                change_operation(temp_lat, op, -90, 90); 
-                rtc_location.lat_deg = temp_lat;
-            }; break; 
-
-            case Parameter::LAT_MIN:
-            {
-                change_operation(rtc_location.lat_min, op, 0, 60);
-            }; break;
-
-            case Parameter::LAT_SEC:
-            {
-                change_operation(rtc_location.lat_sec, op, 0, 60);
-            }; break;
-
-            case Parameter::TIMEZONE:
-            {
-                change_operation(rtc_location.time_zone, op, -12, +14);
-            }; break;
-
-        */
-            default: ;break;
+        
+        default: ;break;
     }
 
     return HAL_OK;

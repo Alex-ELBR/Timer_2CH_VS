@@ -18,7 +18,8 @@ namespace nDS1338{
     {
         PLUS,
         MINUS,
-        APPLY_RTC,
+        APPLY_TIME,
+        APPLY_DATE,
         APPLY_LONGITUDE,
         APPLY_LATITUDE,
         APPLY_TIMEZONE

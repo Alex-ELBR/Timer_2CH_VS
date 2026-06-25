@@ -53,7 +53,7 @@ bool menu_config_rtc(eButton::pressed_but_t button, eMenu::Context& ctx)
             
             // Нажали ENTER/OK на минутах -> завершаем настройку и выходим обратно в меню!
             if (button == eButton::PRESS_OK) {
-                ctx.rtc.change_parameter(Parameter::EMPTY, TypeOp::APPLY_RTC); // Сохраняем
+                ctx.rtc.change_parameter(Parameter::EMPTY, TypeOp::APPLY_TIME); // Сохраняем
                 current_step = STEP_EDIT_HOURS; // Сбрасываем шаги на начало            
                 ctx.rtc.rtc_resume();
                 return false; 
