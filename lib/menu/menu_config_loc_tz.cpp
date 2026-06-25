@@ -18,15 +18,12 @@ bool menu_config_loc_tz(Button button, eMenu::Context& ctx)
 {
     static EditTzStep current_step = STEP_EDIT_TZ;
 
-    // 1. ПРОВЕРКА ОТМЕНЫ (CANCEL) НА САМОМ ВХОДЕ
-    // Если нажали CANCEL, сразу выходим, ничего не перерисовывая для этого режима
     if (button == Button::PRESS_CANCEL || button == Button::PRESS_OK_CANCEL) {
         current_step = STEP_EDIT_TZ;     // Сброс шага
         ctx.rtc.rtc_resume();            // Запуск RTC обратно
         return false;                     // Выход в меню
     }
 
-    // 2. АВТОМАТ СОСТОЯНИЙ НАСТРОЙКИ
     switch(current_step)
     {
         case STEP_EDIT_TZ: 
@@ -41,8 +38,6 @@ bool menu_config_loc_tz(Button button, eMenu::Context& ctx)
             break;
     }
 
-    // 3. ОБНОВЛЕНИЕ ДАННЫХ И ОТРИСОВКА НА ЭКРАНЕ
-    // Этот блок гарантированно вызовется, если мы не вышли по CANCEL или OK(на секундах)
     switch(current_step)
     {
         case STEP_EDIT_TZ:
@@ -54,5 +49,5 @@ bool menu_config_loc_tz(Button button, eMenu::Context& ctx)
 
     }
 
-    return true; // Продолжаем оставаться в режиме редактирования долготы
+    return true; 
 }
