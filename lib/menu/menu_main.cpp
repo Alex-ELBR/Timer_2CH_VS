@@ -16,8 +16,8 @@ extern eDS1338 rtc;
 
 eMenu::Item menu_loc_items[] = {
     
-    { "LOn ", nullptr, start_config_rtc, nullptr, menu_config_loc_lon },
     { "LAt ", nullptr, start_config_rtc, nullptr, menu_config_loc_lat },
+    { "LOn ", nullptr, start_config_rtc, nullptr, menu_config_loc_lon },
     { "UtC ", nullptr, start_config_rtc, nullptr, menu_config_loc_tz },
 };
 
@@ -26,25 +26,17 @@ eMenu locationMenu(menu_loc_items, sizeof(menu_loc_items) / sizeof(menu_loc_item
 
 /** Главное меню **************************************************************************/
 eMenu::Item main_items[] = {
-    
-    { "Hour", nullptr, start_config_rtc, nullptr, menu_config_rtc }, 
-    { "dAtE", nullptr, nullptr, nullptr, nullptr },
+
+    { "Hour", nullptr, start_config_rtc, nullptr, menu_config_rtc_time }, 
+    { "dAtE", nullptr, start_config_rtc, nullptr, menu_config_rtc_date },
     { "Loc ", nullptr, nullptr, &locationMenu, nullptr }, //Подменю настройки локации
-    { "Func", nullptr, nullptr, nullptr, nullptr }
+    { "Func", nullptr, nullptr, nullptr, nullptr },    
 };
 
 eMenu mainMenu(main_items, sizeof(main_items) / sizeof(main_items[0]));
 /**************************************************************************************** */
 
-
-
-
-
-
-void start_config_rtc(eMenu::Context& ctx)
-{
-   ctx.rtc.rtc_suspend();
-}
+void start_config_rtc(eMenu::Context& ctx){ ctx.rtc.rtc_suspend(); }
 
 
 

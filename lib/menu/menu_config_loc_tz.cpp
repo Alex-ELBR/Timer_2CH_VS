@@ -1,7 +1,5 @@
 #include "menu_main.h"
 
-//extern eDisplay displ;
-//extern eRTC rtc;
 
 using namespace nDS1338;
 using Button = eButton::ButtonNumber; 
@@ -46,7 +44,6 @@ bool menu_config_loc_tz(Button button, eMenu::Context& ctx)
             ctx.displ.show_location_tz(timezone, BLINK);
             break;
         }
-
     }
 
     return true; 

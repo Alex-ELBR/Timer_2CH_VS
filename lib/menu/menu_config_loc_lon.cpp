@@ -75,3 +75,4 @@ bool menu_config_loc_lon(Button button, eMenu::Context& ctx)
     }
 
     return true; 
+}

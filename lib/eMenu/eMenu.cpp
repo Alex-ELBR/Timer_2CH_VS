@@ -38,14 +38,14 @@ bool eMenu::process(Button button, Context& ctx) {
 
     // 2. НАВИГАЦИЯ ПО ТЕКУЩЕМУ МЕНЮ (Если ни один пункт не активен)
     switch (button) {
-        case Button::PRESS_DOWN:
+        case Button::PRESS_UP:
             m_current_index++;
             if (m_current_index >= m_size) {
                 m_current_index = 0; // Зацикливание списка вниз
             }
             break;
 
-        case Button::PRESS_UP:
+        case Button::PRESS_DOWN:
             if (m_current_index == 0) {
                 m_current_index = m_size - 1; // Зацикливание списка вверх
             } else {

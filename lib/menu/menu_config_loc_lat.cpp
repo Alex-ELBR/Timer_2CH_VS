@@ -1,7 +1,5 @@
 #include "menu_main.h"
 
-//extern eDisplay displ;
-//extern eRTC rtc;
 
 using namespace nDS1338;
 using Button = eButton::ButtonNumber; 
