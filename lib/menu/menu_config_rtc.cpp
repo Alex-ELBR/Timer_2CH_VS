@@ -3,6 +3,7 @@
 //extern eDisplay displ;
 //extern eRTC rtc;
 
+using namespace nDS1338;
 
 // Состояния настройки
 enum eEditStep {
@@ -12,7 +13,7 @@ enum eEditStep {
 
 void start_config_rtc(eMenu::Context& ctx)
 {
-    ctx.rtc.start_change();
+   // ctx.rtc.start_change();
 }
 
 
@@ -28,10 +29,10 @@ bool menu_config_rtc(eButton::pressed_but_t button, eMenu::Context& ctx)
         {
             // --- ЛОГИКА ИЗМЕНЕНИЯ ЧАСОВ ---
             if (button == eButton::PRESS_UP) {
-                ctx.rtc.change_parameter(CHANGE_HOUR, PLUS);
+                ctx.rtc.change_parameter(Parameter::HOUR, TypeOp::PLUS);
             }
             if (button == eButton::PRESS_DOWN) {
-                ctx.rtc.change_parameter(CHANGE_HOUR, MINUS);
+                ctx.rtc.change_parameter(Parameter::HOUR, TypeOp::MINUS);
             }
             
             // Нажали ENTER/OK -> переключаемся на настройку минут!
@@ -44,17 +45,17 @@ bool menu_config_rtc(eButton::pressed_but_t button, eMenu::Context& ctx)
         {
             // --- ЛОГИКА ИЗМЕНЕНИЯ МИНУТ ---
             if (button == eButton::PRESS_UP) {
-                ctx.rtc.change_parameter(CHANGE_MINUTE, PLUS);
+                ctx.rtc.change_parameter(Parameter::MINUTE, TypeOp::PLUS);
             }
             if (button == eButton::PRESS_DOWN) {
-                ctx.rtc.change_parameter(CHANGE_MINUTE, MINUS);
+                ctx.rtc.change_parameter(Parameter::MINUTE, TypeOp::MINUS);
             }
             
             // Нажали ENTER/OK на минутах -> завершаем настройку и выходим обратно в меню!
             if (button == eButton::PRESS_OK) {
-                ctx.rtc.change_parameter(0, APPLY_RTC); // Сохраняем
+                ctx.rtc.change_parameter(Parameter::EMPTY, TypeOp::APPLY_RTC); // Сохраняем
                 current_step = STEP_EDIT_HOURS; // Сбрасываем шаги на начало            
-                ctx.rtc.stop_change();
+                //ctx.rtc.stop_change();
                 return false; 
             }
         } break;

@@ -1,6 +1,7 @@
 #include "eDS1338.hpp"
 
-
+template <typename T, typename OP> 
+void change_operation(T &ptr_param, OP op, int16_t limit_min, int16_t limit_max);
 
 // Конвертация: обычное число (HEX) -> двоично-десятичное (BCD)
 static inline uint8_t rtc_dec_to_bcd(uint8_t val) {
@@ -11,9 +12,16 @@ static inline uint8_t rtc_dec_to_bcd(uint8_t val) {
 static inline uint8_t rtc_bcd_to_dec(uint8_t val) {
     return ((val >> 4) * 10) + (val & 0x0F);
 }
+static inline float dms_to_float(int16_t deg, uint8_t min, uint8_t sec);
+static inline void float_to_dms(float decimal, int16_t *deg, uint8_t *min, uint8_t *sec);
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+
+/*******************************************************************************
+ * Конструктор
+ * i2c_obj - шина I2C
+ * address - адрес часов на шине
+ */
 eDS1338::eDS1338(I2C_HandleTypeDef *i2c_obj, uint16_t address)
 {
     _i2c_bus = i2c_obj;
@@ -22,7 +30,10 @@ eDS1338::eDS1338(I2C_HandleTypeDef *i2c_obj, uint16_t address)
     memset(_rtc_buffer, 0, sizeof(ds1338_data_t));
 }
 
-
+/*******************************************************************************
+ * Вызывать периодически в главном цикле
+ * Получение актуального времени и координат из RTC
+ */
 HAL_StatusTypeDef eDS1338::periodic(void)
 {
     HAL_StatusTypeDef status;
@@ -57,15 +68,226 @@ HAL_StatusTypeDef eDS1338::periodic(void)
     _real_time.sec_week = ((uint32_t)(_real_time.day) * 86400) + ((uint32_t)(_real_time.hour) * 3600) + ((uint32_t)(_real_time.minute) * 60) + ((uint32_t)(_real_time.second));
 
     
-    // Переменные float (latitude, longitude, time_zone) уже на своих местах и готовы к работе
     return HAL_OK;
 }
 
 
+/*******************************************************************************
+ * Настройка параметров RTC 
+ */
+HAL_StatusTypeDef eDS1338::change_parameter(Parameter parameter_name, TypeOp op)
+{
+    #pragma pack(push, 1)
+    typedef struct 
+    {
+        uint8_t  second;          /**< секунды           - [ 0 to 59 ] */
+        uint8_t  minute;          /**< минуты            - [ 0 to 59 ] */
+        uint8_t  hour;            /**< часы              - [ 0 to 23 ] */
+        uint8_t  day;             /**< день недели       - [ 1 to 7 ]  */
+        uint8_t  date;            /**< число календарное - [ 1 to 31 ] */
+        uint8_t  month;           /**< месяц             - [ 1 to 12 ] */
+        uint8_t  year;            /**< год               - [ 00 - 99 ] */
+        uint8_t  control;
+    
+    } ds1338_data_time_t;
+    #pragma pack(pop)
 
 
+    static real_time_t temp_parameter = _real_time;
+    uint16_t block_size = 0;
+    uint16_t start_addr = 0;
+
+    if(op == TypeOp::APPLY_RTC)
+    {
+        start_addr = 0;
+        block_size = sizeof(ds1338_data_time_t);
+        ds1338_data_time_t *ptr_rtc_buffer = (ds1338_data_time_t*)_rtc_buffer;
+
+        ptr_rtc_buffer->second = 0; // запуск часов
+        ptr_rtc_buffer->minute = rtc_dec_to_bcd(temp_parameter.minute);
+        ptr_rtc_buffer->hour = rtc_dec_to_bcd(temp_parameter.hour);
+        ptr_rtc_buffer->date = rtc_dec_to_bcd(temp_parameter.date);
+        ptr_rtc_buffer->month = rtc_dec_to_bcd(temp_parameter.month);
+        ptr_rtc_buffer->year = rtc_dec_to_bcd(temp_parameter.year - 2000);
+
+    }
+
+    else if(op == TypeOp::APPLY_LATITUDE)
+    {
+        start_addr = sizeof(ds1338_data_time_t);
+        block_size = sizeof(float);
+        float *ptr_latitude = (float*)_rtc_buffer;
+
+        *ptr_latitude = temp_parameter.latitude;
+    }
+
+    else if(op == TypeOp::APPLY_LONGITUDE)
+    {
+        start_addr = sizeof(ds1338_data_time_t) + sizeof(float);
+        block_size = sizeof(float);
+        float *ptr_longitude = (float*)_rtc_buffer;
+        *ptr_longitude = temp_parameter.longitude;
+    }
+
+    while(HAL_I2C_Mem_Write(_i2c_bus, (_dev_address << 1), start_addr, I2C_MEMADD_SIZE_8BIT, _rtc_buffer, block_size, HAL_I2C_ERROR_TIMEOUT ) != HAL_OK) 
+    {
+        return HAL_TIMEOUT;
+    }
+
+/*----------------------------------------------------------------------------------------------------------------------------*/
+    switch(parameter_name)
+    {
+        case Parameter::HOUR:   change_operation(temp_parameter.hour, op, 0, 23); break;
+        case Parameter::MINUTE: change_operation(temp_parameter.minute, op, 0, 59); break;  
+        case Parameter::DAY:    change_operation(temp_parameter.day, op, MONDAY, SUNDAY); break;   
+        case Parameter::MONTH:  change_operation(temp_parameter.month, op, JANUARY, DECEMBER); break; 
+        case Parameter::YEAR:   change_operation(temp_parameter.year, op, 2000, 2100); break;    
+
+        case Parameter::DATE:
+        {
+            uint16_t limit_date_max;
+
+            if(temp_parameter.month == APRIL || temp_parameter.month == JUNE || temp_parameter.month == SEPTEMBER || temp_parameter.month == NOVEMBER) 
+            {
+                limit_date_max = 30;
+            }
+            else if(temp_parameter.month == FEBRUARY)
+            {
+                if(is_leap_year(temp_parameter.year)) limit_date_max = 29;
+                else limit_date_max = 28;
+            }
+            else limit_date_max = 31;
+
+            change_operation(temp_parameter.date, op, 0, limit_date_max);
+            break;
+        } 
+
+            
+        /*
+        case Parameter::LON_DEG:
+        {
+            int16_t temp_lon = temp_parameter.lon_deg; 
+            change_operation(temp_lon, op, -180, 180);
+            rtc_location.lon_deg = temp_lon;
+        }; break; 
+
+        case Parameter::LON_MIN:
+        {
+            change_operation(rtc_location.lon_min, op, 0, 60);
+        }; break;
+
+        case Parameter::LON_SEC:
+        {
+            change_operation(rtc_location.lon_sec, op, 0, 60);
+        }; break;
 
 
+            case Parameter::LAT_DEG:
+            {
+                int16_t temp_lat = rtc_location.lat_deg;
+                change_operation(temp_lat, op, -90, 90); 
+                rtc_location.lat_deg = temp_lat;
+            }; break; 
+
+            case Parameter::LAT_MIN:
+            {
+                change_operation(rtc_location.lat_min, op, 0, 60);
+            }; break;
+
+            case Parameter::LAT_SEC:
+            {
+                change_operation(rtc_location.lat_sec, op, 0, 60);
+            }; break;
+
+            case Parameter::TIMEZONE:
+            {
+                change_operation(rtc_location.time_zone, op, -12, +14);
+            }; break;
+
+        */
+            default: ;break;
+    }
+
+    return HAL_OK;
+
+}
+
+
+uint32_t eDS1338::get_unix_time(void) { return _real_time.unix_time; }
+uint8_t eDS1338::get_day(void) { return _real_time.day; }
+uint8_t eDS1338::get_date(void) { return _real_time.date; }
+uint8_t eDS1338::get_month(void) { return _real_time.month; }
+uint16_t eDS1338::get_year(void) { return _real_time.year; }
+uint8_t eDS1338::get_hour(void) { return _real_time.hour; }
+uint8_t eDS1338::get_minute(void) { return _real_time.minute; }
+bool eDS1338::get_sec_comma(void) { return (bool)(_real_time.sec_comma); }
+
+uint32_t eDS1338::get_sec_only_day(void) { return _real_time.sec_only_day; }
+uint32_t eDS1338::get_sec_week(void) { return _real_time.sec_week; }
+
+int16_t eDS1338::get_longitude_degree(void)
+{
+    int16_t degree = 0;
+    float_to_dms(_real_time.longitude, &degree, nullptr, nullptr);
+    return degree;
+}
+
+int16_t eDS1338::get_longitude_min(void)
+{
+    uint8_t minute = 0;
+    float_to_dms(_real_time.longitude, nullptr, &minute, nullptr);
+    return minute;
+}
+
+int16_t eDS1338::get_longitude_sec(void)
+{
+    uint8_t second = 0;
+    float_to_dms(_real_time.longitude, nullptr, &second, nullptr);
+    return second;
+}
+//////////////////
+int16_t eDS1338::get_latitude_degree(void)
+{
+    int16_t degree = 0;
+    float_to_dms(_real_time.latitude, &degree, nullptr, nullptr);
+    return degree;
+}
+
+int16_t eDS1338::get_latitude_min(void)
+{
+    uint8_t minute = 0;
+    float_to_dms(_real_time.latitude, nullptr, &minute, nullptr);
+    return minute;
+}
+
+int16_t eDS1338::get_latitude_sec(void)
+{
+    uint8_t second = 0;
+    float_to_dms(_real_time.latitude, nullptr, nullptr, &second);
+    return second;
+}
+
+int16_t eDS1338::get_timezone(void){ 
+
+    return (uint16_t)_real_time.time_zone;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void eDS1338::get_civil_dawn(uint8_t &hour, uint8_t &minute) // Начало утренних гражданских сумерек
+{
+    real_time_t time_civil;
+    unix_to_time(_real_time.twilight_rise, &time_civil);
+    hour = time_civil.hour;
+    minute = time_civil.minute;
+}
+
+void eDS1338::get_civil_dusk(uint8_t &hour, uint8_t &minute) // Конец вечерних гражданских сумерек
+{
+    real_time_t time_civil;
+    unix_to_time(_real_time.twilight_set, &time_civil);
+    hour = time_civil.hour;
+    minute = time_civil.minute;
+} 
 
 
 /********************************************************************************************************* */
@@ -210,17 +432,28 @@ uint8_t eDS1338::is_leap_year(int16_t year)
 }
 
 
-// Преобразование координат
-// Функция преобразования
-/*
-void eDS1338::convert_coordinate(const ds1338_data_t *rtc_data, float *out_lat, float *out_lon, float *tz) 
+/*** служебные функции ***********************************************************************************/
+template <typename T, typename OP> 
+void change_operation(T &ptr_param, OP op, int16_t limit_min, int16_t limit_max)
 {
-    if (rtc_data == NULL)    { return; }
-    if (out_lat != NULL) { *out_lat = dms_to_float(rtc_data->lat_deg, rtc_data->lat_min, rtc_data->lat_sec); }
-    if (out_lon != NULL) { *out_lon = dms_to_float(rtc_data->lon_deg, rtc_data->lon_min, rtc_data->lon_sec); }
-    if (tz != NULL)      { *tz = (float)rtc_data->time_zone; }
+    using namespace nDS1338;
+
+    switch(op)
+    {
+        case TypeOp::PLUS:
+        {
+            if((ptr_param) < limit_max) ++(ptr_param);
+            else (ptr_param) = limit_min;
+        }; break;
+
+        case TypeOp::MINUS:
+        {
+            if((ptr_param) > limit_min) --(ptr_param);
+            else (ptr_param) = limit_max;
+        }; break;
+
+        default: break;
+    }
 }
-*/
-//->>>>>>>>>>>>
 
 

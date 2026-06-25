@@ -7,6 +7,7 @@
 #include <string.h>
 #include "stm32f1xx_hal.h"
 #include <time_common.h>
+#include <eDS1338.hpp>
 
 
 #include "bin_bcd.h"
@@ -69,6 +70,8 @@ class eDisplay
         void show(const uint32_t data);
 
         void show_clock(const display_clock_t clock, uint8_t blink = STAT);
+        void show_clock(eDS1338& rtc, uint8_t blink = STAT);
+
         void show_day(const uint8_t day, uint8_t blink = STAT);
         void show_date(const uint8_t date, uint8_t blink = STAT);
         void show_month(const uint8_t month, uint8_t blink = STAT);

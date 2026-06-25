@@ -7,7 +7,7 @@
 #include <eDispatcher.h>
 #include <eDisplay.h>
 #include <eLed.h>
-#include <eRTC.h>
+#include <eDS1338.hpp>
 #include <eButton.h>
 #include <eChannel.h>
 #include <eEEPROM.h>

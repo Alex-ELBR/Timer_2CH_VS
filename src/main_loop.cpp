@@ -2,15 +2,15 @@
 
 extern eDisplay displ;
 extern ELed led_1, led_2, led_3;
-extern eRTC rtc;
+extern eDS1338 rtc;
 extern eButton keyboard;
 extern eEEPROM eeprom;
 extern eChannel channel[CHANNEL_AMOUNT];
 extern uint8_t test_month;
 
-display_clock_t get_clock(eRTC rtc);
-display_clock_t morning_twilight_start(eRTC rtc);
-display_clock_t evening_twilight_end(eRTC rtc);
+display_clock_t get_clock(eDS1338& rtc);
+display_clock_t morning_twilight_start(eDS1338& rtc);
+display_clock_t evening_twilight_end(eDS1338& rtc);
 
 
 const uint8_t MAX_COUNT_MENU = 6;
@@ -88,7 +88,7 @@ void main_loop(void)
             {
                 case 0:
                 {
-                    displ.show_clock(get_clock(rtc));
+                    displ.show_clock(rtc);
                 };break;
 
                 case 1:
@@ -166,7 +166,7 @@ void main_loop(void)
 }
 
 /************************************************************ */
-display_clock_t get_clock(eRTC rtc)
+display_clock_t get_clock(eDS1338& rtc)
 {
     display_clock_t clocks;
 
@@ -176,7 +176,7 @@ display_clock_t get_clock(eRTC rtc)
     return clocks;
 }
 
-display_clock_t morning_twilight_start(eRTC rtc)
+display_clock_t morning_twilight_start(eDS1338& rtc)
 {
     display_clock_t clocks;
 
@@ -185,7 +185,7 @@ display_clock_t morning_twilight_start(eRTC rtc)
     return clocks;
 }
 
-display_clock_t evening_twilight_end(eRTC rtc)
+display_clock_t evening_twilight_end(eDS1338& rtc)
 {
     display_clock_t clocks;
     

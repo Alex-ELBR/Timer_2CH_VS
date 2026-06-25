@@ -7,7 +7,7 @@
 
 #include "eDisplay.h"
 #include "eLed.h"
-#include "eRTC.h"
+#include "eDS1338.hpp"
 #include "eButton.h"
 #include "eDisplay.h"
 #include "eEEPROM.h"

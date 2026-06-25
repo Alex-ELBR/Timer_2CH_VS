@@ -265,6 +265,49 @@ void eDisplay::show_clock(const display_clock_t clock, uint8_t blink)
     }
 }
 
+void eDisplay::show_clock(eDS1338& rtc, uint8_t blink)
+{
+    bcd8_level_t hour, minute;
+
+    hour = bin8_trans(rtc.get_hour());
+    minute = bin8_trans(rtc.get_minute());
+    all_digits_stat();
+
+
+    digits.digit_4.symbol = hour.tens;
+    digits.digit_3.symbol = hour.units;
+    digits.digit_2.symbol = minute.tens;
+    digits.digit_1.symbol = minute.units;
+    
+    digits.digit_4.comma = false;
+    digits.digit_3.comma = rtc.get_sec_comma();
+    digits.digit_2.comma = false;
+    digits.digit_1.comma = false;
+
+    switch(blink)
+    {
+        case BLINK_HOUR:
+        {
+            digit_4_mode = BLINK;
+            digit_3_mode = BLINK;
+        }; break;
+
+        case BLINK_MIN:
+        {
+            digit_2_mode = BLINK;
+            digit_1_mode = BLINK;
+        }; break;
+
+        default:
+        {
+            digit_4_mode = STAT;
+            digit_3_mode = STAT;
+            digit_2_mode = STAT;
+            digit_1_mode = STAT;
+        }; break;
+    }
+}
+
 void eDisplay::show_day(const uint8_t day, uint8_t blink)
 {
     all_digits_stat();

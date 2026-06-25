@@ -8,7 +8,7 @@
 #include "stm32f1xx_hal.h"
 #include <eButton.h>
 #include <eDisplay.h>
-#include <eRTC.h>
+#include <eDS1338.hpp>
 
 
 
@@ -18,7 +18,7 @@
 
 // Предварительное объявление класса дисплея (замените на ваш реальный класс, например Adafruit_SSD1306)
 class eDisplay; 
-class eRTC;
+class eDS1338;
 
 class eMenu 
 {
@@ -26,7 +26,7 @@ class eMenu
         // Структура контекста для передачи сквозных данных во все функции
         struct Context {
             eDisplay& displ;
-            eRTC& rtc;
+            eDS1338& rtc;
             // Config& cfg;
         };
 

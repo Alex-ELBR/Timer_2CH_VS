@@ -2,7 +2,7 @@
 
 
 
-bool menu_config_loc(uint16_t button, eDisplay& displ, eRTC& rtc)
+bool menu_config_loc(uint16_t button, eDisplay& displ, eDS1338& rtc)
 {
     static uint8_t screen = 0;
     static uint8_t what_config = 0;
@@ -33,7 +33,6 @@ bool menu_config_loc(uint16_t button, eDisplay& displ, eRTC& rtc)
                 {
                     if(!menu_config_loc_lon(button)) 
                     {
-                        rtc.stop_change();
                         screen = SCREEN_CONF_LOC_LON;
                         return 1;
                     }
@@ -45,7 +44,6 @@ bool menu_config_loc(uint16_t button, eDisplay& displ, eRTC& rtc)
                 {
                     if(!menu_config_loc_lat(button)) 
                     {
-                        rtc.stop_change();
                         screen = SCREEN_CONF_LOC_LAT;
                         return 1;
                     }
@@ -58,7 +56,6 @@ bool menu_config_loc(uint16_t button, eDisplay& displ, eRTC& rtc)
                     
                     if(!menu_config_loc_timezone(button)) 
                     {
-                        rtc.stop_change();
                         screen = SCREEN_CONF_LOC_TMZ;
                         return 1;
                     }
@@ -99,7 +96,6 @@ bool menu_config_loc(uint16_t button, eDisplay& displ, eRTC& rtc)
 
         case eButton::PRESS_OK:
         {
-            rtc.start_change();
             what_config = screen;
             screen = ENTER_CONFIG_LOC;
         }; break;

@@ -1,12 +1,12 @@
 #include "menu_main.h"
-#include "eRTC.h" 
+#include "eDS1338.hpp" 
 #include "eDisplay.h"
 #include "eMenu.h"
 
 
 
 extern eDisplay displ;
-extern eRTC rtc;
+extern eDS1338 rtc;
 
 
 
@@ -53,11 +53,11 @@ eMenu mainMenu(main_items, sizeof(main_items) / sizeof(main_items[0]));
 
 
 /*
-extern eRTC rtc;
+extern eDS1338 rtc;
 
 // Определяем типы для читаемости кода
 using MenuVoidFunc = void(*)(void); // Функция инициализации (ничего не принимает, ничего не возвращает)
-using MenuSubFunc = bool(*)(uint16_t, Display&, eRTC&); // Функция подменю (принимает кнопку, возвращает bool)
+using MenuSubFunc = bool(*)(uint16_t, Display&, eDS1338&); // Функция подменю (принимает кнопку, возвращает bool)
 
 struct MenuItem {
     const char*  label;       // Текст для дисплея
@@ -66,9 +66,9 @@ struct MenuItem {
 };
 
 // Объявляем заглушки функций, если они объявлены ниже по коду
-bool menu_config_rtc(uint16_t button, Display& displ, eRTC& rtc);
-bool menu_config_loc(uint16_t button, Display& displ, eRTC& rtc);
-bool menu_config_chnl(uint16_t button, Display& displ, eRTC& rtc);
+bool menu_config_rtc(uint16_t button, Display& displ, eDS1338& rtc);
+bool menu_config_loc(uint16_t button, Display& displ, eDS1338& rtc);
+bool menu_config_chnl(uint16_t button, Display& displ, eDS1338& rtc);
 
 // Обертка для rtc.start_change(), так как это метод класса, а не обычная функция
 void rtc_init_wrapper() { 
@@ -87,7 +87,7 @@ const MenuItem MAIN_MENU[] = {
 constexpr uint8_t MENU_SIZE = sizeof(MAIN_MENU) / sizeof(MAIN_MENU[0]);
 
 
-bool menu_main(uint16_t button, Display& displ, eRTC& rtc)
+bool menu_main(uint16_t button, Display& displ, eDS1338& rtc)
 {
     static int8_t current_item = 0; 
     static bool in_submenu = false; 
