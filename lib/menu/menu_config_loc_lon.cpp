@@ -1,0 +1,83 @@
+#include "menu_main.h"
+
+//extern eDisplay displ;
+//extern eRTC rtc;
+
+using namespace nDS1338;
+using Button = eButton::ButtonNumber; 
+
+// Состояния настройки
+enum EditLonStep {
+    STEP_EDIT_DEG,   
+    STEP_EDIT_MIN,   
+    STEP_EDIT_SEC,
+};
+
+
+
+
+bool menu_config_loc_lon(Button button, eMenu::Context& ctx) 
+{
+    static EditLonStep current_step = STEP_EDIT_DEG;
+
+    // 1. ПРОВЕРКА ОТМЕНЫ (CANCEL) НА САМОМ ВХОДЕ
+    // Если нажали CANCEL, сразу выходим, ничего не перерисовывая для этого режима
+    if (button == Button::PRESS_CANCEL || button == Button::PRESS_OK_CANCEL) {
+        current_step = STEP_EDIT_DEG; // Сброс шага
+        ctx.rtc.rtc_resume();            // Запуск RTC обратно
+        return false;                     // Выход в меню
+    }
+
+    // 2. АВТОМАТ СОСТОЯНИЙ НАСТРОЙКИ
+    switch(current_step)
+    {
+        case STEP_EDIT_DEG: 
+            if (button == Button::PRESS_UP)   ctx.rtc.change_parameter(Parameter::LON_DEG, TypeOp::PLUS);
+            if (button == Button::PRESS_DOWN) ctx.rtc.change_parameter(Parameter::LON_DEG, TypeOp::MINUS);
+            if (button == Button::PRESS_OK)   current_step = STEP_EDIT_MIN;
+            break;
+
+        case STEP_EDIT_MIN: 
+            if (button == Button::PRESS_UP)   ctx.rtc.change_parameter(Parameter::LON_MIN, TypeOp::PLUS);
+            if (button == Button::PRESS_DOWN) ctx.rtc.change_parameter(Parameter::LON_MIN, TypeOp::MINUS);
+            if (button == Button::PRESS_OK)   current_step = STEP_EDIT_SEC;
+            break;
+
+        case STEP_EDIT_SEC: 
+            if (button == Button::PRESS_UP)   ctx.rtc.change_parameter(Parameter::LON_SEC, TypeOp::PLUS);
+            if (button == Button::PRESS_DOWN) ctx.rtc.change_parameter(Parameter::LON_SEC, TypeOp::MINUS);
+            if (button == Button::PRESS_OK) {
+                ctx.rtc.change_parameter(Parameter::EMPTY, TypeOp::APPLY_LONGITUDE); // Сохраняем данные
+                current_step = STEP_EDIT_DEG;                                   // Сброс шага
+                ctx.rtc.rtc_resume();                                              // Запуск RTC
+                return false;                                                      // Выход в меню
+            }
+            break;
+    }
+
+    // 3. ОБНОВЛЕНИЕ ДАННЫХ И ОТРИСОВКА НА ЭКРАНЕ
+    // Этот блок гарантированно вызовется, если мы не вышли по CANCEL или OK(на секундах)
+    switch(current_step)
+    {
+        case STEP_EDIT_DEG:
+        {
+            uint16_t degree = ctx.rtc.get_longitude_degree();
+            ctx.displ.show_location_deg(degree, BLINK);
+            break;
+        }
+        case STEP_EDIT_MIN:
+        {
+            uint16_t minute = ctx.rtc.get_longitude_min();
+            ctx.displ.show_location_min(minute, BLINK); 
+            break;
+        }
+        case STEP_EDIT_SEC:
+        {
+            uint16_t second = ctx.rtc.get_longitude_sec();
+            ctx.displ.show_location_sec(second, BLINK); 
+            break;
+        }
+    }
+
+    return true; // Продолжаем оставаться в режиме редактирования долготы
+}

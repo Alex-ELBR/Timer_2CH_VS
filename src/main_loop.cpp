@@ -17,6 +17,7 @@ const uint8_t MAX_COUNT_MENU = 6;
 
 eMenu::Context ctx = { displ, rtc }; 
 
+using Button = eButton::ButtonNumber; 
 
 
 
@@ -31,7 +32,7 @@ void main_loop(void)
     static uint8_t work_mode = STARTUP_LOAD;
     static uint8_t startup_load_step = 0;
 
-    eButton::pressed_but_t button = keyboard.get_button();
+    Button button = keyboard.get_button();
     
 
     switch(work_mode)
@@ -126,24 +127,24 @@ void main_loop(void)
 
             switch(button)
             {
-                case eButton::PRESS_UP:
+                case Button::PRESS_UP:
                 {
                     if(screen < MAX_COUNT_MENU) ++screen;
                     else screen = 0;
                 };break;
 
-                case eButton::PRESS_DOWN:
+                case Button::PRESS_DOWN:
                 {
                     if(screen > 0) --screen;
                     else screen = MAX_COUNT_MENU;
                 };break;
 
-                case eButton::PRESS_OK:
+                case Button::PRESS_OK:
                 {
                     work_mode = CONFIGURATION;
                 };break;
 
-                case eButton::PRESS_CANCEL:
+                case Button::PRESS_CANCEL:
                 {
 
                 };break;
@@ -155,7 +156,11 @@ void main_loop(void)
         case CONFIGURATION:
         {
         
-            if(!mainMenu.process(button, ctx)) work_mode = NORMAL_WORK;     
+            bool menu_active = mainMenu.process(button, ctx);
+            button = Button::NOT_PRESSED; 
+            if (!menu_active) {
+                work_mode = NORMAL_WORK;     
+            }
 
         }; break;
 

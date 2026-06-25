@@ -8,7 +8,7 @@ void eMenu::reset() {
     m_active_item = nullptr;
 }
 
-bool eMenu::process(eButton::pressed_but_t button, Context& ctx) {
+bool eMenu::process(Button button, Context& ctx) {
     
     // 1. ЕСЛИ АКТИВЕН ВНУТРЕННИЙ ПУНКТ (Подменю или Режим редактирования)
     if (m_active_item != nullptr) {
@@ -29,7 +29,7 @@ bool eMenu::process(eButton::pressed_but_t button, Context& ctx) {
             bool exit = m_active_item->action_func(button, ctx);
             
             // Если в режиме редактирования нажали CANCEL или функция вернула false — выходим из этого режима назад в меню
-            if (button == eButton::PRESS_CANCEL || button == eButton::PRESS_OK_CANCEL || exit == false) {
+            if (button == Button::PRESS_CANCEL || button == Button::PRESS_OK_CANCEL || exit == false) {
                 m_active_item = nullptr;
             }
             return true;
@@ -38,14 +38,14 @@ bool eMenu::process(eButton::pressed_but_t button, Context& ctx) {
 
     // 2. НАВИГАЦИЯ ПО ТЕКУЩЕМУ МЕНЮ (Если ни один пункт не активен)
     switch (button) {
-        case eButton::PRESS_DOWN:
+        case Button::PRESS_DOWN:
             m_current_index++;
             if (m_current_index >= m_size) {
                 m_current_index = 0; // Зацикливание списка вниз
             }
             break;
 
-        case eButton::PRESS_UP:
+        case Button::PRESS_UP:
             if (m_current_index == 0) {
                 m_current_index = m_size - 1; // Зацикливание списка вверх
             } else {
@@ -53,7 +53,7 @@ bool eMenu::process(eButton::pressed_but_t button, Context& ctx) {
             }
             break;
 
-        case eButton::PRESS_OK: {
+        case Button::PRESS_OK: {
             const Item* selected = &m_items[m_current_index];
             
             // Если у пункта есть функция инициализации — вызываем один раз перед входом
@@ -73,7 +73,7 @@ bool eMenu::process(eButton::pressed_but_t button, Context& ctx) {
             break;
         }
 
-        case eButton::PRESS_CANCEL:
+        case Button::PRESS_CANCEL:
             // Возвращаем false, сигнализируя родительскому меню, что из текущего нужно выйти
             return false; 
 

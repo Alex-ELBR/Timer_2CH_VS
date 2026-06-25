@@ -4,6 +4,7 @@
 //extern eRTC rtc;
 
 using namespace nDS1338;
+using Button = eButton::ButtonNumber; 
 
 // Состояния настройки
 enum eEditStep {
@@ -11,13 +12,8 @@ enum eEditStep {
     STEP_EDIT_MINUTES,  // Шаг 2: Настройка минут
 };
 
-void start_config_rtc(eMenu::Context& ctx)
-{
-   ctx.rtc.rtc_suspend();
-}
 
-
-bool menu_config_rtc(eButton::pressed_but_t button, eMenu::Context& ctx)
+bool menu_config_rtc(Button button, eMenu::Context& ctx)
 {
     // static переменные сохраняют значения между циклами вызова функции
     static eEditStep current_step = STEP_EDIT_HOURS;
@@ -28,15 +24,15 @@ bool menu_config_rtc(eButton::pressed_but_t button, eMenu::Context& ctx)
         case STEP_EDIT_HOURS: 
         {
             // --- ЛОГИКА ИЗМЕНЕНИЯ ЧАСОВ ---
-            if (button == eButton::PRESS_UP) {
+            if (button == Button::PRESS_UP) {
                 ctx.rtc.change_parameter(Parameter::HOUR, TypeOp::PLUS);
             }
-            if (button == eButton::PRESS_DOWN) {
+            if (button == Button::PRESS_DOWN) {
                 ctx.rtc.change_parameter(Parameter::HOUR, TypeOp::MINUS);
             }
             
             // Нажали ENTER/OK -> переключаемся на настройку минут!
-            if (button == eButton::PRESS_OK) {
+            if (button == Button::PRESS_OK) {
                 current_step = STEP_EDIT_MINUTES;
             }
         } break;
@@ -44,15 +40,15 @@ bool menu_config_rtc(eButton::pressed_but_t button, eMenu::Context& ctx)
         case STEP_EDIT_MINUTES: 
         {
             // --- ЛОГИКА ИЗМЕНЕНИЯ МИНУТ ---
-            if (button == eButton::PRESS_UP) {
+            if (button == Button::PRESS_UP) {
                 ctx.rtc.change_parameter(Parameter::MINUTE, TypeOp::PLUS);
             }
-            if (button == eButton::PRESS_DOWN) {
+            if (button == Button::PRESS_DOWN) {
                 ctx.rtc.change_parameter(Parameter::MINUTE, TypeOp::MINUS);
             }
             
             // Нажали ENTER/OK на минутах -> завершаем настройку и выходим обратно в меню!
-            if (button == eButton::PRESS_OK) {
+            if (button == Button::PRESS_OK) {
                 ctx.rtc.change_parameter(Parameter::EMPTY, TypeOp::APPLY_TIME); // Сохраняем
                 current_step = STEP_EDIT_HOURS; // Сбрасываем шаги на начало            
                 ctx.rtc.rtc_resume();
@@ -78,7 +74,7 @@ bool menu_config_rtc(eButton::pressed_but_t button, eMenu::Context& ctx)
     }
     
     // Если пользователь на любом этапе нажал кнопку НАЗАД/CANCEL — сбрасываем шаг
-    if (button == eButton::PRESS_CANCEL) {
+    if (button == Button::PRESS_CANCEL) {
         current_step = STEP_EDIT_HOURS;
         ctx.rtc.rtc_resume();
         return false;

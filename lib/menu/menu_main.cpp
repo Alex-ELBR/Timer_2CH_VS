@@ -10,13 +10,15 @@ extern eDS1338 rtc;
 
 
 
+
+
 /** Подменю настройки локации *************************************************************/
 
 eMenu::Item menu_loc_items[] = {
     
-    { "LOn ", nullptr, nullptr, nullptr, nullptr },
-    { "LAt ", nullptr, nullptr, nullptr, nullptr },
-    { "UtC  ", nullptr, nullptr, nullptr, nullptr },
+    { "LOn ", nullptr, start_config_rtc, nullptr, menu_config_loc_lon },
+    { "LAt ", nullptr, start_config_rtc, nullptr, menu_config_loc_lat },
+    { "UtC  ", nullptr, start_config_rtc, nullptr, nullptr },
 };
 
 eMenu locationMenu(menu_loc_items, sizeof(menu_loc_items) / sizeof(menu_loc_items[0]));
@@ -39,7 +41,10 @@ eMenu mainMenu(main_items, sizeof(main_items) / sizeof(main_items[0]));
 
 
 
-
+void start_config_rtc(eMenu::Context& ctx)
+{
+   ctx.rtc.rtc_suspend();
+}
 
 
 
