@@ -573,7 +573,7 @@ void eDisplay::show_location(const int16_t loc, uint8_t param, uint8_t blink)
 void eDisplay::show_location_deg(const int16_t loc, uint8_t blink){ show_location(loc, PARAM_DEG, blink); }
 void eDisplay::show_location_min(const int16_t loc, uint8_t blink){ show_location(loc, PARAM_MIN, blink); }
 void eDisplay::show_location_sec(const int16_t loc, uint8_t blink){ show_location(loc, PARAM_SEC, blink); }
-void eDisplay::show_location_tz(const int8_t time_zone, uint8_t blink){ show_location((uint16_t)time_zone, PARAM_TZ, blink); }
+void eDisplay::show_location_tz (const int16_t time_zone, uint8_t blink) { show_location(time_zone, PARAM_TZ, blink); }
 
 
 

@@ -80,7 +80,7 @@ class eDisplay
         void show_location_deg(const int16_t loc, uint8_t blink);
         void show_location_min(const int16_t loc, uint8_t blink);
         void show_location_sec(const int16_t loc, uint8_t blink);
-        void show_location_tz(const int8_t time_zone, uint8_t blink);
+        void show_location_tz(const int16_t time_zone, uint8_t blink);
        
 
         void display_char_write_pos(uint8_t value, uint8_t pos, uint8_t mode);

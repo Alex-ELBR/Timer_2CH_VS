@@ -18,7 +18,7 @@ eMenu::Item menu_loc_items[] = {
     
     { "LOn ", nullptr, start_config_rtc, nullptr, menu_config_loc_lon },
     { "LAt ", nullptr, start_config_rtc, nullptr, menu_config_loc_lat },
-    { "UtC  ", nullptr, start_config_rtc, nullptr, nullptr },
+    { "UtC ", nullptr, start_config_rtc, nullptr, menu_config_loc_tz },
 };
 
 eMenu locationMenu(menu_loc_items, sizeof(menu_loc_items) / sizeof(menu_loc_items[0]));
