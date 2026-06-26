@@ -11,9 +11,6 @@ enum EditLatStep {
     STEP_EDIT_SEC,
 };
 
-
-
-
 bool menu_config_loc_lat(Button button, eMenu::Context& ctx) 
 {
     static EditLatStep current_step = STEP_EDIT_DEG;

@@ -9,9 +9,6 @@ enum EditTzStep {
     STEP_EDIT_TZ,   
 };
 
-
-
-
 bool menu_config_loc_tz(Button button, eMenu::Context& ctx) 
 {
     static EditTzStep current_step = STEP_EDIT_TZ;

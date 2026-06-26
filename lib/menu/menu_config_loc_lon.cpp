@@ -1,7 +1,5 @@
 #include "menu_main.h"
 
-//extern eDisplay displ;
-//extern eRTC rtc;
 
 using namespace nDS1338;
 using Button = eButton::ButtonNumber; 
@@ -12,9 +10,6 @@ enum EditLonStep {
     STEP_EDIT_MIN,   
     STEP_EDIT_SEC,
 };
-
-
-
 
 bool menu_config_loc_lon(Button button, eMenu::Context& ctx) 
 {

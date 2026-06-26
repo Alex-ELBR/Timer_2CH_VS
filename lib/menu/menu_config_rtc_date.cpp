@@ -11,7 +11,6 @@ enum eEditDateStep {
     STEP_EDIT_DATE,
 };
 
-
 bool menu_config_rtc_date(Button button, eMenu::Context& ctx)
 {
     static eEditDateStep current_step = STEP_EDIT_YEAR;
