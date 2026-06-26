@@ -36,14 +36,17 @@ bool menu_config_loc_tz(Button button, eMenu::Context& ctx)
             break;
     }
 
-    switch(current_step)
+    if(current_step == STEP_EDIT_TZ)
     {
-        case STEP_EDIT_TZ:
-        {
-            uint16_t timezone = ctx.rtc.get_timezone();
-            ctx.displ.show_location_tz(timezone, BLINK);
-            break;
-        }
+        uint16_t timezone = ctx.rtc.get_timezone();
+        ctx.displ.show_location_tz(timezone, BLINK);
+    }
+
+    if (button == Button::PRESS_CANCEL) 
+    {
+        current_step = STEP_EDIT_TZ;
+        ctx.rtc.rtc_resume();
+        return false;
     }
 
     return true; 
