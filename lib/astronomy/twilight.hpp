@@ -29,10 +29,10 @@ struct TwilightResult {
  * @brief Функция расчета локального времени сумерек/восходов/закатов без использования float/double.
  * 
  * @param unix_time Текущее базовое время в формате UTC Unix timestamp (секунды с 01.01.1970).
- * @param lat_scaled Широта, умноженная на 100 (например: 55.75° N -> 5575, южная широта -> отрицательная).
- * @param lon_scaled Долгота, умноженная на 100 (например: 37.61° E -> 3761, западная долгота -> отрицательная).
- * @param tz_offset_scaled Сдвиг часового пояса * 100 (например: UTC+3 -> 300, UTC+5:30 -> 530, UTC-4 -> -400).
+ * @param latitude Широта в градусах
+ * @param latitude Долгота в градусах
+ * @param time_zone часовой пояс (например: UTC+3, UTC+5:30, UTC-4).
  * @param type Требуемый тип сумерек.
  * @return TwilightResult Структура с локальными метками времени (уже включают сдвиг таймзоны).
  */
-TwilightResult calculate_twilight(uint32_t unix_time, int32_t lat_scaled, int32_t lon_scaled, int16_t tz_offset_scaled, TwilightType type);
+TwilightResult calculate_twilight(uint32_t unix_time, float latitude, float longitude, float time_zone, TwilightType type);

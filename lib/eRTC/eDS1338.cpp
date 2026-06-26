@@ -1,9 +1,39 @@
 #include "eDS1338.hpp"
 #include <math.h>  
+#include <type_traits>
 
 
-template <typename T, typename OP> 
-void change_operation(T &ptr_param, OP op, int16_t limit_min, int16_t limit_max);
+namespace 
+{
+    auto change_operation = [](auto&& param, auto op, const auto limit_min, const auto limit_max){
+
+        using namespace nDS1338;        
+        using ParamType = std::remove_reference_t<decltype(param)>;
+        
+        if constexpr (std::is_same_v<ParamType, bool>) // Проверяем, является ли param типом bool
+        {
+            if (op == TypeOp::PLUS || op == TypeOp::MINUS) { param = !param; }
+        } 
+        else 
+        {
+            switch(op)
+            {
+                case TypeOp::PLUS:
+                    if (param < limit_max) { ++param; } 
+                    else { param = limit_min; }
+                    break;
+
+                case TypeOp::MINUS:
+                    if (param > limit_min && param <= limit_max) { --param; } 
+                    else { param = limit_max; }
+                    break;
+
+                default: 
+                    break;
+            }
+        }
+    };
+}
 
 // Конвертация: обычное число (HEX) -> двоично-десятичное (BCD)
 static inline uint8_t rtc_dec_to_bcd(uint8_t val) {
@@ -73,6 +103,9 @@ HAL_StatusTypeDef eDS1338::periodic(void)
     _real_time.sec_only_day = ((uint32_t)(_real_time.hour) * 3600) + ((uint32_t)(_real_time.minute) * 60) + ((uint32_t)(_real_time.second));
     _real_time.sec_week = ((uint32_t)(_real_time.day) * 86400) + ((uint32_t)(_real_time.hour) * 3600) + ((uint32_t)(_real_time.minute) * 60) + ((uint32_t)(_real_time.second));
 
+    TwilightResult civil = calculate_twilight(_real_time.unix_time, _real_time.latitude, _real_time.longitude, _real_time.time_zone, TwilightType::Civil);
+    _real_time.twilight_rise = civil.start_time;
+    _real_time.twilight_set = civil.end_time;
     
     return HAL_OK;
 }
@@ -508,28 +541,6 @@ uint8_t eDS1338::is_leap_year(int16_t year)
 }
 
 
-/*** служебные функции ***********************************************************************************/
-template <typename T, typename OP> 
-void change_operation(T &ptr_param, OP op, int16_t limit_min, int16_t limit_max)
-{
-    using namespace nDS1338;
 
-    switch(op)
-    {
-        case TypeOp::PLUS:
-        {
-            if((ptr_param) < limit_max) ++(ptr_param);
-            else (ptr_param) = limit_min;
-        }; break;
-
-        case TypeOp::MINUS:
-        {
-            if((ptr_param) > limit_min) --(ptr_param);
-            else (ptr_param) = limit_max;
-        }; break;
-
-        default: break;
-    }
-}
 
 
