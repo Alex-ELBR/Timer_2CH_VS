@@ -11,6 +11,7 @@
 #include <eButton.h>
 #include <eChannel.h>
 #include <eEEPROM.h>
+#include <eGPS.hpp>
 
 
 
