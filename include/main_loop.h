@@ -12,6 +12,7 @@
 #include "eDisplay.h"
 #include "eEEPROM.h"
 #include "eChannel.h"
+#include "eGPS.hpp"
 
 #include <menu_main.h>
 

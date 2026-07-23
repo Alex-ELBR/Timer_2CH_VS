@@ -265,12 +265,12 @@ void eDisplay::show_clock(const display_clock_t clock, uint8_t blink)
     }
 }
 
-void eDisplay::show_clock(eDS1338& rtc, uint8_t blink)
+void eDisplay::show_clock(eGPS& gps, uint8_t blink)
 {
     bcd8_level_t hour, minute;
 
-    hour = bin8_trans(rtc.get_hour());
-    minute = bin8_trans(rtc.get_minute());
+    hour = bin8_trans(gps.get_hour());
+    minute = bin8_trans(gps.get_minute());
     all_digits_stat();
 
 
@@ -280,7 +280,7 @@ void eDisplay::show_clock(eDS1338& rtc, uint8_t blink)
     digits.digit_1.symbol = minute.units;
     
     digits.digit_4.comma = false;
-    digits.digit_3.comma = rtc.get_sec_comma();
+    digits.digit_3.comma = gps.get_sec_comma();
     digits.digit_2.comma = false;
     digits.digit_1.comma = false;
 

@@ -29,7 +29,7 @@ class eMenu
         struct Context {
             eDisplay& displ;
             eDS1338& rtc;
-            // Config& cfg;
+            eGPS& gps;
         };
 
         // Сигнатуры функций теперь строго используют типы из eButton

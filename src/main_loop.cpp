@@ -2,7 +2,10 @@
 
 extern eDisplay displ;
 extern ELed led_1, led_2, led_3;
+
 extern eDS1338 rtc;
+extern eGPS gps;
+
 extern eButton keyboard;
 extern eEEPROM eeprom;
 extern eChannel channel[CHANNEL_AMOUNT];
@@ -15,7 +18,7 @@ display_clock_t evening_twilight_end(eDS1338& rtc);
 
 const uint8_t MAX_COUNT_MENU = 6;
 
-eMenu::Context ctx = { displ, rtc }; 
+eMenu::Context ctx = { displ, rtc, gps }; 
 
 using Button = eButton::ButtonNumber; 
 
@@ -89,27 +92,27 @@ void main_loop(void)
             {
                 case 0:
                 {
-                    displ.show_clock(rtc);
+                    displ.show_clock(gps);
                 };break;
 
                 case 1:
                 {
-                    displ.show_date(rtc.get_date());
+                    displ.show_date(gps.get_date());
                 };break;   
 
                 case 2:
                 {
-                    displ.show_day(rtc.get_day());
+                    displ.show_day(gps.get_day());
                 };break;
 
                 case 3:
                 {
-                    displ.show_month(rtc.get_month());
+                    displ.show_month(gps.get_month());
                 };break;  
 
                 case 4:
                 {
-                    displ.show_year(rtc.get_year());
+                    displ.show_year(gps.get_year());
                 };break;
 
                 case 5:

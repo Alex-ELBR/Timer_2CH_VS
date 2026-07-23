@@ -84,7 +84,8 @@ void update_led(void)
 /////////////////////////////////////////////////////////////////
 void get_time_rtc(void)
 {
-  rtc.periodic();
+  //rtc.periodic();
+  gps.periodic();
 }
 
 
