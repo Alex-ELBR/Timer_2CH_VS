@@ -75,6 +75,12 @@ void eOLED::init(void) {
     u8g2_InitDisplay(&_u8g2);
     u8g2_SetPowerSave(&_u8g2, 0); // Включаем экран
 }
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void eOLED::periodic(void){
+
+    u8g2_SendBuffer(&_u8g2);
+}
+
 
 // Отрисовка вашего экрана сумерек
 void eOLED::updateScreen(const char* date, const char* time, const char* tw_start, const char* tw_end) {
@@ -104,5 +110,4 @@ void eOLED::updateScreen(const char* date, const char* time, const char* tw_star
     // ИСПРАВЛЕНО: __u8g2 заменена на _u8g2
     u8g2_DrawStr(&_u8g2, 97, 58, tw_end);
 
-    u8g2_SendBuffer(&_u8g2);
 }

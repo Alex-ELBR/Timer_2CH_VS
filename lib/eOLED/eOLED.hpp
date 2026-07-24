@@ -22,6 +22,7 @@ class eOLED
     public:
         eOLED(I2C_HandleTypeDef *i2c_obj, uint16_t address);
         void init(void);
+        void periodic(void);
         void updateScreen(const char* date, const char* time, const char* tw_start, const char* tw_end);
 
     private:
@@ -30,4 +31,22 @@ class eOLED
         u8g2_t _u8g2; // Структура библиотеки u8g2 под капотом класса
 };
 
+
+/*
+Набор u8g2_font_open_iconic_embedded_2x_t (Размер 16x16)
+
+    74 — Bluetooth 
+    80 — Ключ / Настройки (иконка гаечного ключа)
+    67 — Батарея (полный заряд)
+    68 — Батарея (средний заряд)
+    64 — Электросеть / Вилка 
+    67 — Спутниковая антенна / Радар 
+    68 — Сигнал / Антенна 
+    71 — Замок закрыт 
+    72 — Замок открыт 
+    85 — Восклицательный знак в треугольнике 
+    68 — Крестик (X)
+    74 — Галочка (V)
+*/
 #endif //EOLED_H_INCLUDED
+
