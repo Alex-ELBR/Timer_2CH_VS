@@ -26,7 +26,7 @@ eDispatcher dispatcher;                  // объект диспетчера з
 eDisplay displ;
 eDS1338 rtc(&hi2c1, ADDRESS_RTC);        // обьект часов
 eEEPROM eeprom(&hi2c1, ADDRESS_EEPROM);  // обьект микросхемы памяти
-eOLED oled(&hi2c1, 0x3C << 1);           // обьект OLED дисплея 
+eOLED oled(&hi2c1, 0x3C);           // обьект OLED дисплея 
 
 eButton keyboard;
 eChannel channel[CHANNEL_AMOUNT];
