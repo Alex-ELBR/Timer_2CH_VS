@@ -68,6 +68,16 @@ HAL_StatusTypeDef eDS1338::periodic(void)
     _real_time.longitude = ptr_rtc_buffer->longitude;
     _real_time.time_zone = ptr_rtc_buffer->time_zone;
 
+//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    _real_time.latitude  = 56.0371f;  // Широта (North)
+    _real_time.longitude = 35.9585f;  // Долгота (East)
+    _real_time.time_zone = 3.0f;      // Часовой пояс UTC+3 (Московское время)
+//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+    TwilightResult civil = calculate_twilight(_real_time.unix_time, _real_time.latitude, _real_time.longitude, _real_time.time_zone, TwilightType::Civil);
+    _real_time.twilight_set = civil.start_time;
+    _real_time.twilight_rise = civil.end_time;
+
     _real_time.sec_only_day = ((uint32_t)(_real_time.hour) * 3600) + ((uint32_t)(_real_time.minute) * 60) + ((uint32_t)(_real_time.second));
     _real_time.sec_week = ((uint32_t)(_real_time.day) * 86400) + ((uint32_t)(_real_time.hour) * 3600) + ((uint32_t)(_real_time.minute) * 60) + ((uint32_t)(_real_time.second));
 

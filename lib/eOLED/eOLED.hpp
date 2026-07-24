@@ -6,6 +6,7 @@
 #include <string.h>
 #include <cstdint>
 #include "stm32f1xx_hal.h"
+#include <eDS1338.hpp>
 
 #ifdef __cplusplus
 extern "C" {
@@ -24,6 +25,7 @@ class eOLED
         void init(void);
         void periodic(void);
         void show_time(const char* time);
+        void show_main_screen(eDS1338& rtc);
 
     private:
         I2C_HandleTypeDef *_i2c_bus;

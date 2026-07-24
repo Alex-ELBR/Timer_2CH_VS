@@ -83,27 +83,95 @@ void eOLED::periodic(void){
 void eOLED::show_time(const char* time) {
     u8g2_ClearBuffer(&_u8g2);
 
-    /*
+    // размер 6x10, всегда моноширинный
     u8g2_SetFont(&_u8g2, u8g2_font_6x10_tf);
-    u8g2_DrawStr(&_u8g2, 34, 10, date);
-    */
+    u8g2_DrawStr(&_u8g2, 34, 10, "24.07.2026");
 
-    // ВРЕМЯ (Крупный шрифт по центру)
-    u8g2_SetFont(&_u8g2, u8g2_font_fub20_tn);
-    u8g2_DrawStr(&_u8g2, 24, 38, time);
-
-    /*
-    u8g2_SetFont(&_u8g2, u8g2_font_open_iconic_weather_2x_t);
-    u8g2_DrawGlyph(&_u8g2, 10, 62, 66); // 66 - код Луны
+    char hours_buf[3] = { time[0], time[1], '\0' };
+    char minutes_buf[3] = { time[3], time[4], '\0' };
     
-    u8g2_SetFont(&_u8g2, u8g2_font_6x10_tf);
-    u8g2_DrawStr(&_u8g2, 32, 58, tw_start);
+    bool is_separator_visible = (time[2] == ':');
+
+    u8g2_SetFont(&_u8g2, u8g2_font_fub20_tn);
+
+    u8g2_DrawStr(&_u8g2, 24, 38, hours_buf);     // Часы всегда начинаются на X = 24
+    u8g2_DrawStr(&_u8g2, 74, 38, minutes_buf);   // Минуты НАМЕРТВО зафиксированы на X = 74
+
+    if (is_separator_visible) {
+        // Верхняя точка двоеточия (координаты X, Y, ширина, высота)
+        u8g2_DrawBox(&_u8g2, 64, 23, 3, 3);
+        // Нижняя точка двоеточия
+        u8g2_DrawBox(&_u8g2, 64, 31, 3, 3);
+    }
 
     u8g2_SetFont(&_u8g2, u8g2_font_open_iconic_weather_2x_t);
-    u8g2_DrawGlyph(&_u8g2, 75, 62, 69); // 69 - код Солнца
+    u8g2_DrawGlyph(&_u8g2, 10, 62, 66); // Луна
+    u8g2_SetFont(&_u8g2, u8g2_font_6x10_tf);
+    u8g2_DrawStr(&_u8g2, 32, 58, "21:48");
+
+    u8g2_SetFont(&_u8g2, u8g2_font_open_iconic_weather_2x_t);
+    u8g2_DrawGlyph(&_u8g2, 75, 62, 69); // Солнце
+    u8g2_SetFont(&_u8g2, u8g2_font_6x10_tf);
+    u8g2_DrawStr(&_u8g2, 97, 58, "04:12");
+
+}
+
+ void eOLED::show_main_screen(eDS1338& rtc)
+ {
+    u8g2_ClearBuffer(&_u8g2);
+
+
+    // ОТОБРАЖЕНИЕ ВРЕМЕНИ
+    char timeStr[8]; // Буфер с запасом на 8 байт
+    uint8_t hour   = rtc.get_hour();
+    uint8_t minute = rtc.get_minute();
+    bool comma     = rtc.get_sec_comma();
+    snprintf(timeStr, sizeof(timeStr), "%02d%s%02d", (int)(hour % 24), comma ? ":" : " ", (int)(minute % 60));
+    char hours_buf[3] = { timeStr[0], timeStr[1], '\0' };
+    char minutes_buf[3] = { timeStr[3], timeStr[4], '\0' };
+    bool is_separator_visible = (timeStr[2] == ':');
+
+    u8g2_SetFont(&_u8g2, u8g2_font_fub20_tn);
+
+    u8g2_DrawStr(&_u8g2, 24, 38, hours_buf);     
+    u8g2_DrawStr(&_u8g2, 70, 38, minutes_buf);   
+
+    if (is_separator_visible) {
+        u8g2_DrawBox(&_u8g2, 60, 23, 3, 3);
+        u8g2_DrawBox(&_u8g2, 60, 31, 3, 3);
+    }
+
+    //ОТОБРАЖЕНИЕ ДАТЫ
+    uint8_t date = rtc.get_date();
+    uint8_t month = rtc.get_month();
+    uint16_t year = rtc.get_year();
+    char dateStr[12]; 
+
+    snprintf(dateStr, sizeof(dateStr), "%02d.%02d.%04d", 
+            (int)(date % 32), 
+            (int)(month % 13), 
+            (int)(year % 10000));
 
     u8g2_SetFont(&_u8g2, u8g2_font_6x10_tf);
-    u8g2_DrawStr(&_u8g2, 97, 58, tw_end);
-    */
+    u8g2_DrawStr(&_u8g2, 34, 10, dateStr); 
+
+    // ОТОБРАЖЕНИЕ ВРЕМЕНИ НАЧАЛА/КОНЦА ГРАЖДАНСКИХ СУМЕРЕК
+    char civilStr[8]; // Буфер с запасом на 8 байт
+    uint8_t civilHour   = 0;
+    uint8_t civilMinute = 0;
+
+    rtc.get_civil_dawn(civilHour, civilMinute);
+    snprintf(civilStr, sizeof(civilStr), "%02d:%02d", (int)(civilHour % 24), (int)(civilMinute % 60));
+    u8g2_SetFont(&_u8g2, u8g2_font_open_iconic_weather_2x_t);
+    u8g2_DrawGlyph(&_u8g2, 10, 62, 66); // Луна
+    u8g2_SetFont(&_u8g2, u8g2_font_6x10_tf);
+    u8g2_DrawStr(&_u8g2, 32, 58, civilStr);
+
+    rtc.get_civil_dusk(civilHour, minute);
+    snprintf(civilStr, sizeof(civilStr), "%02d:%02d", (int)(civilHour % 24), (int)(civilMinute % 60));
+    u8g2_SetFont(&_u8g2, u8g2_font_open_iconic_weather_2x_t);
+    u8g2_DrawGlyph(&_u8g2, 75, 62, 69); // Солнце
+    u8g2_SetFont(&_u8g2, u8g2_font_6x10_tf);
+    u8g2_DrawStr(&_u8g2, 97, 58, civilStr);
 
 }

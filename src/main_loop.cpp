@@ -84,6 +84,7 @@ void main_loop(void)
     /************************************************/
         case NORMAL_WORK:
         {
+            /*
             char timeStr[8]; // Буфер с запасом на 8 байт
             uint8_t hour   = rtc.get_hour();
             uint8_t minute = rtc.get_minute();
@@ -92,6 +93,8 @@ void main_loop(void)
             // Операции % 24 и % 60 доказывают компилятору, что числа уложатся в 2 знака
             snprintf(timeStr, sizeof(timeStr), "%02d%s%02d", (int)(hour % 24), comma ? ":" : " ", (int)(minute % 60));
             oled.show_time(timeStr);
+            */
+            oled.show_main_screen(rtc);
 
             static uint8_t screen = 0;
             switch (screen)
