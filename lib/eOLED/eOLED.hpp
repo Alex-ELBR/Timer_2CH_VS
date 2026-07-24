@@ -23,7 +23,7 @@ class eOLED
         eOLED(I2C_HandleTypeDef *i2c_obj, uint16_t address);
         void init(void);
         void periodic(void);
-        void updateScreen(const char* date, const char* time, const char* tw_start, const char* tw_end);
+        void show_time(const char* time);
 
     private:
         I2C_HandleTypeDef *_i2c_bus;

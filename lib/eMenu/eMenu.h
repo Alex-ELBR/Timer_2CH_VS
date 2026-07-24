@@ -9,6 +9,7 @@
 #include <eButton.h>
 #include <eDisplay.h>
 #include <eDS1338.hpp>
+#include <eOLED.hpp>
 
 
 
@@ -27,6 +28,7 @@ class eMenu
         struct Context {
             eDisplay& displ;
             eDS1338& rtc;
+            eOLED& oled;
             // Config& cfg;
         };
 

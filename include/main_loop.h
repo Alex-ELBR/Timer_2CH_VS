@@ -12,6 +12,7 @@
 #include "eDisplay.h"
 #include "eEEPROM.h"
 #include "eChannel.h"
+#include "eOLED.hpp"
 
 #include <menu_main.h>
 

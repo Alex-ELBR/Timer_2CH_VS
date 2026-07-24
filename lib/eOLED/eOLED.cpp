@@ -93,17 +93,20 @@ void eOLED::periodic(void){
 
 
 // Отрисовка вашего экрана сумерек
-void eOLED::updateScreen(const char* date, const char* time, const char* tw_start, const char* tw_end) {
+void eOLED::show_time(const char* time) {
     u8g2_ClearBuffer(&_u8g2);
 
+    /*
     // 1. ДАТА (Сверху по центру)
     u8g2_SetFont(&_u8g2, u8g2_font_6x10_tf);
     u8g2_DrawStr(&_u8g2, 34, 10, date);
+    */
 
     // 2. ВРЕМЯ (Крупный шрифт по центру)
     u8g2_SetFont(&_u8g2, u8g2_font_fub20_tn);
     u8g2_DrawStr(&_u8g2, 24, 38, time);
 
+    /*
     // 3. НАЧАЛО СУМЕРЕК (Символ месяца)
     u8g2_SetFont(&_u8g2, u8g2_font_open_iconic_weather_2x_t);
     // ИСПРАВЛЕНО: __u8g2 заменена на _u8g2
@@ -119,5 +122,6 @@ void eOLED::updateScreen(const char* date, const char* time, const char* tw_star
     u8g2_SetFont(&_u8g2, u8g2_font_6x10_tf);
     // ИСПРАВЛЕНО: __u8g2 заменена на _u8g2
     u8g2_DrawStr(&_u8g2, 97, 58, tw_end);
+    */
 
 }

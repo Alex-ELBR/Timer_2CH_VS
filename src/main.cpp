@@ -44,6 +44,8 @@ int main(void)
     MX_I2C1_Init(&hi2c1);
     MX_GPIO_Init();
 
+    oled.init();
+
     HAL_Delay(1000);
 
     dispatcher.add_task(main_loop, 1, "main_loop");           //задача 1

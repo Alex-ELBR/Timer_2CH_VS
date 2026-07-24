@@ -6,6 +6,7 @@ extern eDS1338 rtc;
 extern eButton keyboard;
 extern eEEPROM eeprom;
 extern eChannel channel[CHANNEL_AMOUNT];
+extern eOLED oled;
 extern uint8_t test_month;
 
 display_clock_t get_clock(eDS1338& rtc);
@@ -15,7 +16,7 @@ display_clock_t evening_twilight_end(eDS1338& rtc);
 
 const uint8_t MAX_COUNT_MENU = 6;
 
-eMenu::Context ctx = { displ, rtc }; 
+eMenu::Context ctx = { displ, rtc, oled }; 
 
 
 
@@ -83,12 +84,22 @@ void main_loop(void)
     /************************************************/
         case NORMAL_WORK:
         {
+            char timeStr[8]; // Буфер с запасом на 8 байт
+            uint8_t hour   = rtc.get_hour();
+            uint8_t minute = rtc.get_minute();
+            bool comma     = rtc.get_sec_comma();
+
+            // Операции % 24 и % 60 доказывают компилятору, что числа уложатся в 2 знака
+            snprintf(timeStr, sizeof(timeStr), "%02d%s%02d", (int)(hour % 24), comma ? ":" : " ", (int)(minute % 60));
+            oled.show_time(timeStr);
+
             static uint8_t screen = 0;
             switch (screen)
             {
                 case 0:
                 {
                     displ.show_clock(rtc);
+                    
                 };break;
 
                 case 1:
