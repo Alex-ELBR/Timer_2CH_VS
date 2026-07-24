@@ -28,7 +28,8 @@ class eOLED
     private:
         I2C_HandleTypeDef *_i2c_bus;
         uint16_t _dev_address;
-        u8g2_t _u8g2; // Структура библиотеки u8g2 под капотом класса
+        u8g2_t _u8g2; 
+        uint8_t _prev_buffer[1024]; 
 };
 
 

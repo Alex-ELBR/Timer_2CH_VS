@@ -68,6 +68,8 @@ void eOLED::init(void) {
         u8x8_gpio_and_delay_stm32
     );
 
+    memset(_prev_buffer, 0, sizeof(_prev_buffer));
+
     // Устанавливаем 8-битный адрес экрана (сдвиг влево на 1 бит)
     u8x8_SetI2CAddress(&_u8g2.u8x8, _dev_address << 1);
     
@@ -76,7 +78,18 @@ void eOLED::init(void) {
     u8g2_SetPowerSave(&_u8g2, 0); // Включаем экран
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void eOLED::periodic(void){ u8g2_SendBuffer(&_u8g2); }
+void eOLED::periodic(void){ 
+
+    uint8_t *current_buffer = u8g2_GetBufferPtr(&_u8g2);
+
+    // Если изменений в буфере не было
+    if (memcmp(current_buffer, _prev_buffer, 1024) == 0) {
+        return;  
+    }
+
+    u8g2_SendBuffer(&_u8g2); 
+    memcpy(_prev_buffer, current_buffer, 1024);
+}
 
 
 // Отрисовка вашего экрана сумерек
