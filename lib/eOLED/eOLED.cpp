@@ -126,11 +126,11 @@ void eOLED::show_time(const char* time) {
     uint16_t year = rtc.get_year();
     uint8_t day   = rtc.get_day(); 
 
-    char dateStr[12]; 
+    char dateStr[14]; 
     snprintf(dateStr, sizeof(dateStr), "%02d.%02d.%04d", (int)(date % 32), (int)(month % 13), (int)(year % 10000));
     u8g2_SetFont(&_u8g2, u8g2_font_6x13_t_cyrillic);
     u8g2_DrawUTF8(&_u8g2, 0, 13, dateStr); 
-    static const char* days_of_week[] = {"ВС", "ПН", "ВТ", "СР", "ЧТ", "ПТ", "СБ"};
+    static const char* days_of_week[] = {"ПН", "ВТ", "СР", "ЧТ", "ПТ", "СБ", "ВС"};
     uint8_t safe_day = day % 7; 
     u8g2_DrawUTF8(&_u8g2, 116, 13, days_of_week[safe_day]);
 
@@ -162,9 +162,9 @@ void eOLED::show_time(const char* time) {
     rtc.get_civil_dawn(civilHour, civilMinute);
     snprintf(civilStr, sizeof(civilStr), "%02d:%02d", (int)(civilHour % 24), (int)(civilMinute % 60));
     u8g2_SetFont(&_u8g2, u8g2_font_open_iconic_weather_2x_t);
-    u8g2_DrawGlyph(&_u8g2, 10, 62, 66); // Луна
+    u8g2_DrawGlyph(&_u8g2, 0, 62, 66); // Луна
     u8g2_SetFont(&_u8g2, u8g2_font_6x10_tf);
-    u8g2_DrawStr(&_u8g2, 32, 58, civilStr);
+    u8g2_DrawStr(&_u8g2, 22, 58, civilStr);
 
     rtc.get_civil_dusk(civilHour, minute);
     snprintf(civilStr, sizeof(civilStr), "%02d:%02d", (int)(civilHour % 24), (int)(civilMinute % 60));
