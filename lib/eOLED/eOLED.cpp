@@ -120,6 +120,19 @@ void eOLED::show_time(const char* time) {
  {
     u8g2_ClearBuffer(&_u8g2);
 
+    //ОТОБРАЖЕНИЕ ДАТЫ
+    uint8_t date  = rtc.get_date();
+    uint8_t month = rtc.get_month();
+    uint16_t year = rtc.get_year();
+    uint8_t day   = rtc.get_day(); 
+
+    char dateStr[12]; 
+    snprintf(dateStr, sizeof(dateStr), "%02d.%02d.%04d", (int)(date % 32), (int)(month % 13), (int)(year % 10000));
+    u8g2_SetFont(&_u8g2, u8g2_font_6x13_t_cyrillic);
+    u8g2_DrawUTF8(&_u8g2, 0, 13, dateStr); 
+    static const char* days_of_week[] = {"ВС", "ПН", "ВТ", "СР", "ЧТ", "ПТ", "СБ"};
+    uint8_t safe_day = day % 7; 
+    u8g2_DrawUTF8(&_u8g2, 116, 13, days_of_week[safe_day]);
 
     // ОТОБРАЖЕНИЕ ВРЕМЕНИ
     char timeStr[8]; // Буфер с запасом на 8 байт
@@ -133,27 +146,13 @@ void eOLED::show_time(const char* time) {
 
     u8g2_SetFont(&_u8g2, u8g2_font_fub20_tn);
 
-    u8g2_DrawStr(&_u8g2, 24, 38, hours_buf);     
-    u8g2_DrawStr(&_u8g2, 70, 38, minutes_buf);   
+    u8g2_DrawStr(&_u8g2, 24, 40, hours_buf);     
+    u8g2_DrawStr(&_u8g2, 70, 40, minutes_buf);   
 
     if (is_separator_visible) {
-        u8g2_DrawBox(&_u8g2, 60, 23, 3, 3);
-        u8g2_DrawBox(&_u8g2, 60, 31, 3, 3);
+        u8g2_DrawBox(&_u8g2, 60, 25, 3, 3);
+        u8g2_DrawBox(&_u8g2, 60, 33, 3, 3);
     }
-
-    //ОТОБРАЖЕНИЕ ДАТЫ
-    uint8_t date = rtc.get_date();
-    uint8_t month = rtc.get_month();
-    uint16_t year = rtc.get_year();
-    char dateStr[12]; 
-
-    snprintf(dateStr, sizeof(dateStr), "%02d.%02d.%04d", 
-            (int)(date % 32), 
-            (int)(month % 13), 
-            (int)(year % 10000));
-
-    u8g2_SetFont(&_u8g2, u8g2_font_6x10_tf);
-    u8g2_DrawStr(&_u8g2, 34, 10, dateStr); 
 
     // ОТОБРАЖЕНИЕ ВРЕМЕНИ НАЧАЛА/КОНЦА ГРАЖДАНСКИХ СУМЕРЕК
     char civilStr[8]; // Буфер с запасом на 8 байт
