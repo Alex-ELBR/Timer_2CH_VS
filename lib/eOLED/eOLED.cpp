@@ -76,10 +76,7 @@ void eOLED::init(void) {
     u8g2_SetPowerSave(&_u8g2, 0); // Включаем экран
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void eOLED::periodic(void){
-
-    u8g2_SendBuffer(&_u8g2);
-}
+void eOLED::periodic(void){ u8g2_SendBuffer(&_u8g2); }
 
 
 // Отрисовка вашего экрана сумерек
