@@ -76,10 +76,59 @@ void eOLED::init(void) {
     u8x8_cad_SendCmd(&_u8g2.u8x8, 0xDB);
     u8x8_cad_SendCmd(&_u8g2.u8x8, 0x10); // между мин. 0x00 и базовым 0x20
 }
+
+void eOLED::_high_brightness(void) {
+
+    if (_is_already_max) { return; }
+
+    u8g2_SetContrast(&_u8g2, 127);  
+    u8x8_cad_SendCmd(&_u8g2.u8x8, 0xD9); 
+    u8x8_cad_SendCmd(&_u8g2.u8x8, 0x22); 
+    u8x8_cad_SendCmd(&_u8g2.u8x8, 0xDB);
+    u8x8_cad_SendCmd(&_u8g2.u8x8, 0x20); 
+    _is_already_max = true;
+}
+
+void eOLED::_low_brightness(void) {
+
+    if (!_is_already_max) { return; }
+
+    u8g2_SetContrast(&_u8g2, 38);  
+    u8x8_cad_SendCmd(&_u8g2.u8x8, 0xD9); 
+    u8x8_cad_SendCmd(&_u8g2.u8x8, 0x22);     
+    u8x8_cad_SendCmd(&_u8g2.u8x8, 0xDB);
+    u8x8_cad_SendCmd(&_u8g2.u8x8, 0x10);
+    _is_already_max = false;
+}
+
+void eOLED::set_max_brightness(void){
+
+    _is_already_max = true;
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void eOLED::periodic(void){ 
 
     uint8_t *current_buffer = u8g2_GetBufferPtr(&_u8g2);
+    static uint32_t time_br = 0;
+
+    if(_is_already_max){
+        
+        if(time_br > (TIME_MAX_BRIGHTNESS * 10)){
+            time_br = 0;
+            _low_brightness(); // _is_already_max станет false в этой функции
+        }
+        else{
+            ++time_br;
+            _high_brightness();
+        }
+    }
+    else{
+        time_br = 0;
+        _low_brightness();
+    }
+    
+
 
     // Если изменений в буфере не было
     if (memcmp(current_buffer, _prev_buffer, 1024) == 0) {

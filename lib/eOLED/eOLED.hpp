@@ -18,11 +18,14 @@ extern "C" {
 }
 #endif
 
+const uint32_t TIME_MAX_BRIGHTNESS  =   5; // время свечения на максимальной яркости, сек
+
 class eOLED
 {
     public:
         eOLED(I2C_HandleTypeDef *i2c_obj, uint16_t address);
         void init(void);
+        void set_max_brightness(void);
         void periodic(void);
         void show_time(const char* time);
         void show_main_screen(eDS1338& rtc);
@@ -32,6 +35,11 @@ class eOLED
         uint16_t _dev_address;
         u8g2_t _u8g2; 
         uint8_t _prev_buffer[1024]; 
+        bool _is_already_max{false};
+
+        void _high_brightness(void);
+        void _low_brightness(void);
+
 };
 
 
