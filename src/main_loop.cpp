@@ -6,17 +6,13 @@ extern eDS1338 rtc;
 extern eButton keyboard;
 extern eEEPROM eeprom;
 extern eChannel channel[CHANNEL_AMOUNT];
-extern eOLED oled;
 extern uint8_t test_month;
 
-display_clock_t get_clock(eDS1338& rtc);
-display_clock_t morning_twilight_start(eDS1338& rtc);
-display_clock_t evening_twilight_end(eDS1338& rtc);
 
 
 const uint8_t MAX_COUNT_MENU = 6;
 
-eMenu::Context ctx = { displ, rtc, oled }; 
+eMenu::Context ctx = { displ, rtc }; 
 
 
 
@@ -36,7 +32,7 @@ void main_loop(void)
     eButton::pressed_but_t button = keyboard.get_button();
 
     if (button != eButton::NOT_PRESSED && prev_button == eButton::NOT_PRESSED) {
-        oled.set_max_brightness(); 
+        displ.set_max_brightness();
     }
 
     prev_button = button;
@@ -50,8 +46,7 @@ void main_loop(void)
             {
                 case STEP_LOAD_RTC_DATA:
                 {
-                    displ.show("LOAd");
-
+                    
                     led_1.on();
                     startup_load_step = STEP_LOAD_CH_DATA;
 
@@ -91,45 +86,43 @@ void main_loop(void)
         case NORMAL_WORK:
         {
 
-            oled.show_main_screen(rtc);
 
             static uint8_t screen = 0;
             switch (screen)
             {
                 case 0:
                 {
-                    displ.show_clock(rtc);
-                    
+                    displ.show_main_screen(rtc);
                 };break;
 
                 case 1:
                 {
-                    displ.show_date(rtc.get_date());
+
                 };break;   
 
                 case 2:
                 {
-                    displ.show_day(rtc.get_day());
+                    
                 };break;
 
                 case 3:
                 {
-                    displ.show_month(rtc.get_month());
+
                 };break;  
 
                 case 4:
                 {
-                    displ.show_year(rtc.get_year());
+
                 };break;
 
                 case 5:
                 {
-                    displ.show_clock(morning_twilight_start(rtc));
+
                 };break;
                 
                 case 6:
                 {
-                    displ.show_clock(evening_twilight_end(rtc));
+
                 };break;
 
                 default:{ break; }
@@ -156,7 +149,7 @@ void main_loop(void)
 
                 case eButton::PRESS_CANCEL:
                 {
-
+                    screen = 0;
                 };break;
 
                 default: break;
@@ -176,32 +169,4 @@ void main_loop(void)
 
 }
 
-/************************************************************ */
-display_clock_t get_clock(eDS1338& rtc)
-{
-    display_clock_t clocks;
 
-    clocks.hour = rtc.get_hour();
-    clocks.minute = rtc.get_minute();
-    clocks.comma = rtc.get_sec_comma();
-    return clocks;
-}
-
-display_clock_t morning_twilight_start(eDS1338& rtc)
-{
-    display_clock_t clocks;
-
-    rtc.get_civil_dawn(clocks.hour, clocks.minute);
-    clocks.comma = true;
-    return clocks;
-}
-
-display_clock_t evening_twilight_end(eDS1338& rtc)
-{
-    display_clock_t clocks;
-    
-    rtc.get_civil_dusk(clocks.hour, clocks.minute);
-    clocks.comma = true;
-
-    return clocks;
-}

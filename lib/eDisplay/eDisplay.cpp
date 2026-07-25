@@ -1,4 +1,4 @@
-#include "eOLED.hpp"
+#include <eDisplay.hpp>
 #include <string.h>
 
 static I2C_HandleTypeDef *current_i2c_bus = NULL;
@@ -43,11 +43,11 @@ static uint8_t u8x8_gpio_and_delay_stm32(u8x8_t *u8x8, uint8_t msg, uint8_t arg_
     return 1;
 }
 
-eOLED::eOLED(I2C_HandleTypeDef *i2c_obj, uint16_t address) 
+eDisplay::eDisplay(I2C_HandleTypeDef *i2c_obj, uint16_t address) 
     : _i2c_bus(i2c_obj), _dev_address(address) {
 }
 
-void eOLED::_high_brightness(void) {
+void eDisplay::_high_brightness(void) {
     // Если экран УЖЕ находится в режиме максимальной яркости — мгновенно выходим
     if (_is_already_max) { 
         return; 
@@ -69,7 +69,7 @@ void eOLED::_high_brightness(void) {
 }
 
 
-void eOLED::_low_brightness(void) {
+void eDisplay::_low_brightness(void) {
 
     if (!_is_already_max) { return; }
 
@@ -81,13 +81,13 @@ void eOLED::_low_brightness(void) {
     _is_already_max = false;
 }
 
-void eOLED::set_max_brightness(void){
+void eDisplay::set_max_brightness(void){
 
     _high_brightness();
     _time_high_brightness = 0;
 }
 
-void eOLED::init(void) {
+void eDisplay::init(void) {
     current_i2c_bus = _i2c_bus;
 
     u8g2_Setup_ssd1306_i2c_128x64_noname_f(
@@ -109,7 +109,7 @@ void eOLED::init(void) {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void eOLED::periodic(void){ 
+void eDisplay::periodic(void){ 
 
     uint8_t *current_buffer = u8g2_GetBufferPtr(&_u8g2);
     constexpr uint32_t TIME_MAX_BRIGHTNESS_MS = TIME_MAX_BRIGHTNESS * 10;
@@ -135,7 +135,7 @@ void eOLED::periodic(void){
 }
 
 
-void eOLED::show_main_screen(eDS1338& rtc)
+void eDisplay::show_main_screen(eDS1338& rtc)
 {
     u8g2_ClearBuffer(&_u8g2);
 

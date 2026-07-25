@@ -7,19 +7,10 @@
 #include <string.h>
 #include "stm32f1xx_hal.h"
 #include <eButton.h>
-#include <eDisplay.h>
 #include <eDS1338.hpp>
-#include <eOLED.hpp>
+#include <eDisplay.hpp>
 
 
-
-#pragma once
-#include <stdint.h>
-#include "eButton.h" // Подключаем класс кнопок
-
-// Предварительное объявление класса дисплея (замените на ваш реальный класс, например Adafruit_SSD1306)
-class eDisplay; 
-class eDS1338;
 
 class eMenu 
 {
@@ -28,7 +19,6 @@ class eMenu
         struct Context {
             eDisplay& displ;
             eDS1338& rtc;
-            eOLED& oled;
             // Config& cfg;
         };
 

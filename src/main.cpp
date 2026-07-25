@@ -12,7 +12,6 @@ static void MX_I2C1_Init(I2C_HandleTypeDef *i2c_instance);
 void update_display(void);
 void update_button(void);
 void update_led(void);
-void update_oled(void);
 void get_time_rtc(void);
 
 void led_exception(); /* Индикация зависания какой-либо задачи */
@@ -23,10 +22,9 @@ I2C_HandleTypeDef hi2c1;                 // шина I2C для обмена д�
 /*---------------------------------------------------------------------------------------*/
 eDispatcher dispatcher;                  // объект диспетчера задач
 
-eDisplay displ;
+eDisplay displ(&hi2c1, 0x3C);
 eDS1338 rtc(&hi2c1, ADDRESS_RTC);        // обьект часов
 eEEPROM eeprom(&hi2c1, ADDRESS_EEPROM);  // обьект микросхемы памяти
-eOLED oled(&hi2c1, 0x3C);           // обьект OLED дисплея 
 
 eButton keyboard;
 eChannel channel[CHANNEL_AMOUNT];
@@ -44,16 +42,15 @@ int main(void)
     MX_I2C1_Init(&hi2c1);
     MX_GPIO_Init();
 
-    oled.init();
+    displ.init();
 
     HAL_Delay(1000);
 
     dispatcher.add_task(main_loop, 1, "main_loop");           //задача 1
-    dispatcher.add_task(update_display, 10, "update_display"); //задача 2
+    dispatcher.add_task(update_display, 100, "update_display"); //задача 2
     dispatcher.add_task(update_button, 1, "update_button");   //задача 3
     dispatcher.add_task(update_led, 500, "update_led");       //задача 4
     dispatcher.add_task(get_time_rtc, 50, "get_time_rtc");    //задача 5
-    dispatcher.add_task(update_oled, 100, "update_oled");     //задача 6
 
 
     while(1)
@@ -66,7 +63,7 @@ int main(void)
 /////////////////////////////////////////////////////////////////
 void update_display(void)
 {
-  //displ.display_update();
+  displ.periodic();
 };
 
 /////////////////////////////////////////////////////////////////
@@ -83,11 +80,7 @@ void update_led(void)
   led_3.periodic();
 }
 
-/////////////////////////////////////////////////////////////////
-void update_oled(void)
-{
-  oled.periodic();
-}
+
 /////////////////////////////////////////////////////////////////
 void get_time_rtc(void)
 {
@@ -101,23 +94,12 @@ void led_exception()
 {
   static uint32_t timeKeep = HAL_GetTick();
 
-  uint8_t stuck_task = (dispatcher.get_current_task()) + 1;
-  bcd8_level_t stuck_task_digit = bin8_trans(stuck_task);
-
-
-  char i[] = {'E', '-', stuck_task_digit.tens, stuck_task_digit.units};
-  displ.show(i);
-
   if(HAL_GetTick() - timeKeep > 200)
   {
       timeKeep = HAL_GetTick();
       HAL_GPIO_TogglePin(LED_1_PORT, LED_1_PIN);
   }
 
-  if(HAL_GetTick() & 1)
-  {
-    displ.display_update();
-  }
 }
 
 /*****************************************************************************************************/

@@ -1,5 +1,5 @@
-#ifndef EOLED_H_INCLUDED
-#define EOLED_H_INCLUDED
+#ifndef EDISPLAY_H_INCLUDED
+#define EDISPLAY_H_INCLUDED
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -20,10 +20,10 @@ extern "C" {
 #endif
 
 
-class eOLED
+class eDisplay
 {
     public:
-        eOLED(I2C_HandleTypeDef *i2c_obj, uint16_t address);
+        eDisplay(I2C_HandleTypeDef *i2c_obj, uint16_t address);
         void init(void);
         void set_max_brightness(void);
         void periodic(void);
@@ -59,5 +59,5 @@ class eOLED
     68 — Крестик (X)
     74 — Галочка (V)
 */
-#endif //EOLED_H_INCLUDED
+#endif //EDISPLAY_H_INCLUDED
 

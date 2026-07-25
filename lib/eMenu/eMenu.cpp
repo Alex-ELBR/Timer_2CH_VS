@@ -88,7 +88,7 @@ bool eMenu::process(eButton::pressed_but_t button, Context& ctx) {
     // чтобы вывести изменяющиеся значения (например, "Громкость: 45%")
 
     const Item* current = &m_items[m_current_index];
-    ctx.displ.show(current->label);
+    //ctx.displ.show(current->label);
 
     return true; // Остаемся в текущем меню
 }

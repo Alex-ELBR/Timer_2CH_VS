@@ -2,18 +2,21 @@
 #define __MAIN_LOOP_H
 
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include "stm32f1xx_hal.h"
-#include "config_device.h"
+#include <config_device.h>
+#include <eDispatcher.h>
+#include <eDisplay.hpp>
+#include <eLed.h>
+#include <eDS1338.hpp>
+#include <eButton.h>
+#include <eChannel.h>
+#include <eEEPROM.h>
+#include <eMenu.h>
 
-#include "eDisplay.h"
-#include "eLed.h"
-#include "eDS1338.hpp"
-#include "eButton.h"
-#include "eDisplay.h"
-#include "eEEPROM.h"
-#include "eChannel.h"
-#include "eOLED.hpp"
-
+#include "main.h"
 #include <menu_main.h>
 
 

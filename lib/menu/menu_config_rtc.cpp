@@ -63,7 +63,7 @@ bool menu_config_rtc(eButton::pressed_but_t button, eMenu::Context& ctx)
 
 
 
-    // 2. ОБНОВЛЕНИЕ ДАННЫХ И ОТРИСОВКА НА ЭКРАНЕ
+    /*
     display_clock_t edit_clocks;
     edit_clocks.hour   = ctx.rtc.get_hour();   // Берем измененный час
     edit_clocks.minute = ctx.rtc.get_minute(); // Берем измененную минуту
@@ -76,13 +76,12 @@ bool menu_config_rtc(eButton::pressed_but_t button, eMenu::Context& ctx)
     else if (current_step == STEP_EDIT_MINUTES) {
         ctx.displ.show_clock(edit_clocks, BLINK_MIN);  // Мигают разряды минут
     }
-    
+    */
     // Если пользователь на любом этапе нажал кнопку НАЗАД/CANCEL — сбрасываем шаг
     if (button == eButton::PRESS_CANCEL) {
         current_step = STEP_EDIT_HOURS;
         ctx.rtc.rtc_resume();
         return false;
-    
     }
 
     return true;
