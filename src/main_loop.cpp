@@ -31,9 +31,15 @@ void main_loop(void)
 {
     static uint8_t work_mode = STARTUP_LOAD;
     static uint8_t startup_load_step = 0;
+    static eButton::pressed_but_t prev_button = eButton::NOT_PRESSED;
 
     eButton::pressed_but_t button = keyboard.get_button();
-    
+
+    if (button != eButton::NOT_PRESSED && prev_button == eButton::NOT_PRESSED) {
+        oled.set_max_brightness(); 
+    }
+
+    prev_button = button;
 
     switch(work_mode)
     {
@@ -84,16 +90,7 @@ void main_loop(void)
     /************************************************/
         case NORMAL_WORK:
         {
-            /*
-            char timeStr[8]; // Буфер с запасом на 8 байт
-            uint8_t hour   = rtc.get_hour();
-            uint8_t minute = rtc.get_minute();
-            bool comma     = rtc.get_sec_comma();
 
-            // Операции % 24 и % 60 доказывают компилятору, что числа уложатся в 2 знака
-            snprintf(timeStr, sizeof(timeStr), "%02d%s%02d", (int)(hour % 24), comma ? ":" : " ", (int)(minute % 60));
-            oled.show_time(timeStr);
-            */
             oled.show_main_screen(rtc);
 
             static uint8_t screen = 0;

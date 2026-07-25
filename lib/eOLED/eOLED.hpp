@@ -7,6 +7,7 @@
 #include <cstdint>
 #include "stm32f1xx_hal.h"
 #include <eDS1338.hpp>
+#include "config_device.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -18,7 +19,6 @@ extern "C" {
 }
 #endif
 
-const uint32_t TIME_MAX_BRIGHTNESS  =   5; // время свечения на максимальной яркости, сек
 
 class eOLED
 {
@@ -27,7 +27,6 @@ class eOLED
         void init(void);
         void set_max_brightness(void);
         void periodic(void);
-        void show_time(const char* time);
         void show_main_screen(eDS1338& rtc);
 
     private:
@@ -36,6 +35,7 @@ class eOLED
         u8g2_t _u8g2; 
         uint8_t _prev_buffer[1024]; 
         bool _is_already_max{false};
+        uint32_t _time_high_brightness{0};
 
         void _high_brightness(void);
         void _low_brightness(void);

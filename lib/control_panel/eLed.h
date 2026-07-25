@@ -27,10 +27,6 @@ class ELed
         void toogle(void);
 
         void periodic(void);
-
-
-
-
 };
 
 

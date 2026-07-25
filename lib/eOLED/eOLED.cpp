@@ -47,6 +47,46 @@ eOLED::eOLED(I2C_HandleTypeDef *i2c_obj, uint16_t address)
     : _i2c_bus(i2c_obj), _dev_address(address) {
 }
 
+void eOLED::_high_brightness(void) {
+    // Если экран УЖЕ находится в режиме максимальной яркости — мгновенно выходим
+    if (_is_already_max) { 
+        return; 
+    }
+
+    // 1. Выкручиваем программную контрастность на абсолютный максимум (255 из 255)
+    u8g2_SetContrast(&_u8g2, 255);  
+
+    // 2. Увеличиваем фазы заряда/разряда пикселей до предела, чтобы диоды разгорались мгновенно и мощно
+    u8x8_cad_SendCmd(&_u8g2.u8x8, 0xD9); 
+    u8x8_cad_SendCmd(&_u8g2.u8x8, 0xF1); // Максимальный разгон фазы предзаряда (вместо 0x22)
+
+    // 3. Поднимаем напряжение на диодах матрицы на самый верхний физический уровень
+    u8x8_cad_SendCmd(&_u8g2.u8x8, 0xDB);
+    u8x8_cad_SendCmd(&_u8g2.u8x8, 0x40); // Максимальное напряжение регулятора VCOMH (вместо 0x20)
+
+    // Фиксируем переход в максимальный режим
+    _is_already_max = true;
+}
+
+
+void eOLED::_low_brightness(void) {
+
+    if (!_is_already_max) { return; }
+
+    u8g2_SetContrast(&_u8g2, 1);  
+    u8x8_cad_SendCmd(&_u8g2.u8x8, 0xD9); 
+    u8x8_cad_SendCmd(&_u8g2.u8x8, 0x11);     
+    u8x8_cad_SendCmd(&_u8g2.u8x8, 0xDB);
+    u8x8_cad_SendCmd(&_u8g2.u8x8, 0x00);
+    _is_already_max = false;
+}
+
+void eOLED::set_max_brightness(void){
+
+    _high_brightness();
+    _time_high_brightness = 0;
+}
+
 void eOLED::init(void) {
     current_i2c_bus = _i2c_bus;
 
@@ -61,74 +101,29 @@ void eOLED::init(void) {
 
     // Устанавливаем 8-битный адрес экрана (сдвиг влево на 1 бит)
     u8x8_SetI2CAddress(&_u8g2.u8x8, _dev_address << 1);
-    
     u8g2_InitDisplay(&_u8g2);
     u8g2_SetPowerSave(&_u8g2, 0); // Включаем экран
 
-    // контраст 15% 
-    u8g2_SetContrast(&_u8g2, 38);  
-
-    // период предзаряда на среднее энергосбережение
-    u8x8_cad_SendCmd(&_u8g2.u8x8, 0xD9); 
-    u8x8_cad_SendCmd(&_u8g2.u8x8, 0x22); // Заводское 0x22, для 15% -> 0x22 в сочетании с низким VCOMH
-
-    // Снижаем уровень напряжения внутреннего регулятора (VCOMH Deselect Level)
-    u8x8_cad_SendCmd(&_u8g2.u8x8, 0xDB);
-    u8x8_cad_SendCmd(&_u8g2.u8x8, 0x10); // между мин. 0x00 и базовым 0x20
-}
-
-void eOLED::_high_brightness(void) {
-
-    if (_is_already_max) { return; }
-
-    u8g2_SetContrast(&_u8g2, 127);  
-    u8x8_cad_SendCmd(&_u8g2.u8x8, 0xD9); 
-    u8x8_cad_SendCmd(&_u8g2.u8x8, 0x22); 
-    u8x8_cad_SendCmd(&_u8g2.u8x8, 0xDB);
-    u8x8_cad_SendCmd(&_u8g2.u8x8, 0x20); 
     _is_already_max = true;
-}
-
-void eOLED::_low_brightness(void) {
-
-    if (!_is_already_max) { return; }
-
-    u8g2_SetContrast(&_u8g2, 38);  
-    u8x8_cad_SendCmd(&_u8g2.u8x8, 0xD9); 
-    u8x8_cad_SendCmd(&_u8g2.u8x8, 0x22);     
-    u8x8_cad_SendCmd(&_u8g2.u8x8, 0xDB);
-    u8x8_cad_SendCmd(&_u8g2.u8x8, 0x10);
-    _is_already_max = false;
-}
-
-void eOLED::set_max_brightness(void){
-
-    _is_already_max = true;
+    _low_brightness();
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void eOLED::periodic(void){ 
 
     uint8_t *current_buffer = u8g2_GetBufferPtr(&_u8g2);
-    static uint32_t time_br = 0;
+    constexpr uint32_t TIME_MAX_BRIGHTNESS_MS = TIME_MAX_BRIGHTNESS * 10;
 
     if(_is_already_max){
         
-        if(time_br > (TIME_MAX_BRIGHTNESS * 10)){
-            time_br = 0;
+        if(_time_high_brightness > (uint32_t)(TIME_MAX_BRIGHTNESS_MS)){
+            _time_high_brightness = 0;
             _low_brightness(); // _is_already_max станет false в этой функции
         }
         else{
-            ++time_br;
-            _high_brightness();
+            ++_time_high_brightness;
         }
     }
-    else{
-        time_br = 0;
-        _low_brightness();
-    }
-    
-
 
     // Если изменений в буфере не было
     if (memcmp(current_buffer, _prev_buffer, 1024) == 0) {
@@ -140,44 +135,8 @@ void eOLED::periodic(void){
 }
 
 
-void eOLED::show_time(const char* time) {
-    u8g2_ClearBuffer(&_u8g2);
-
-    // размер 6x10, всегда моноширинный
-    u8g2_SetFont(&_u8g2, u8g2_font_6x10_tf);
-    u8g2_DrawStr(&_u8g2, 34, 10, "24.07.2026");
-
-    char hours_buf[3] = { time[0], time[1], '\0' };
-    char minutes_buf[3] = { time[3], time[4], '\0' };
-    
-    bool is_separator_visible = (time[2] == ':');
-
-    u8g2_SetFont(&_u8g2, u8g2_font_fub20_tn);
-
-    u8g2_DrawStr(&_u8g2, 24, 38, hours_buf);     // Часы всегда начинаются на X = 24
-    u8g2_DrawStr(&_u8g2, 74, 38, minutes_buf);   // Минуты НАМЕРТВО зафиксированы на X = 74
-
-    if (is_separator_visible) {
-        // Верхняя точка двоеточия (координаты X, Y, ширина, высота)
-        u8g2_DrawBox(&_u8g2, 64, 23, 3, 3);
-        // Нижняя точка двоеточия
-        u8g2_DrawBox(&_u8g2, 64, 31, 3, 3);
-    }
-
-    u8g2_SetFont(&_u8g2, u8g2_font_open_iconic_weather_2x_t);
-    u8g2_DrawGlyph(&_u8g2, 10, 62, 66); // Луна
-    u8g2_SetFont(&_u8g2, u8g2_font_6x10_tf);
-    u8g2_DrawStr(&_u8g2, 32, 58, "21:48");
-
-    u8g2_SetFont(&_u8g2, u8g2_font_open_iconic_weather_2x_t);
-    u8g2_DrawGlyph(&_u8g2, 75, 62, 69); // Солнце
-    u8g2_SetFont(&_u8g2, u8g2_font_6x10_tf);
-    u8g2_DrawStr(&_u8g2, 97, 58, "04:12");
-
-}
-
- void eOLED::show_main_screen(eDS1338& rtc)
- {
+void eOLED::show_main_screen(eDS1338& rtc)
+{
     u8g2_ClearBuffer(&_u8g2);
 
     //ОТОБРАЖЕНИЕ ДАТЫ
