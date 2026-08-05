@@ -43,28 +43,22 @@ static uint8_t u8x8_gpio_and_delay_stm32(u8x8_t *u8x8, uint8_t msg, uint8_t arg_
     return 1;
 }
 
-eDisplay::eDisplay(I2C_HandleTypeDef *i2c_obj, uint16_t address) 
-    : _i2c_bus(i2c_obj), _dev_address(address) {
-}
+eDisplay::eDisplay(I2C_HandleTypeDef *i2c_obj, uint16_t address) : _i2c_bus(i2c_obj), _dev_address(address) {}
 
 void eDisplay::_high_brightness(void) {
-    // Если экран УЖЕ находится в режиме максимальной яркости — мгновенно выходим
+
     if (_is_already_max) { 
         return; 
     }
 
-    // 1. Выкручиваем программную контрастность на абсолютный максимум (255 из 255)
     u8g2_SetContrast(&_u8g2, 255);  
 
-    // 2. Увеличиваем фазы заряда/разряда пикселей до предела, чтобы диоды разгорались мгновенно и мощно
     u8x8_cad_SendCmd(&_u8g2.u8x8, 0xD9); 
     u8x8_cad_SendCmd(&_u8g2.u8x8, 0xF1); // Максимальный разгон фазы предзаряда (вместо 0x22)
 
-    // 3. Поднимаем напряжение на диодах матрицы на самый верхний физический уровень
     u8x8_cad_SendCmd(&_u8g2.u8x8, 0xDB);
     u8x8_cad_SendCmd(&_u8g2.u8x8, 0x40); // Максимальное напряжение регулятора VCOMH (вместо 0x20)
 
-    // Фиксируем переход в максимальный режим
     _is_already_max = true;
 }
 
