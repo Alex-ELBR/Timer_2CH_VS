@@ -43,6 +43,7 @@ static uint8_t u8x8_gpio_and_delay_stm32(u8x8_t *u8x8, uint8_t msg, uint8_t arg_
     return 1;
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 eDisplay::eDisplay(I2C_HandleTypeDef *i2c_obj, uint16_t address) : _i2c_bus(i2c_obj), _dev_address(address) {}
 
 void eDisplay::_high_brightness(void) {
@@ -128,7 +129,7 @@ void eDisplay::periodic(void){
     memcpy(_prev_buffer, current_buffer, 1024);
 }
 
-
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void eDisplay::show_main_screen(eDS1338& rtc)
 {
     u8g2_ClearBuffer(&_u8g2);
