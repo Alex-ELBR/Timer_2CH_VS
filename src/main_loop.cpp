@@ -19,7 +19,6 @@ eMenu::Context ctx = { displ, rtc };
 
 
 
-
 enum STEP_STARTUP_LOAD
 {
     STEP_LOAD_RTC_DATA = 0,
