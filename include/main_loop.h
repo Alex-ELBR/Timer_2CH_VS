@@ -15,49 +15,17 @@
 #include <eChannel.h>
 #include <eEEPROM.h>
 #include <eMenu.h>
-
 #include "main.h"
 #include <menu_main.h>
 
 
-
-enum _STEP_CASE_
+// Режимы работы прибора
+enum class WorkMode : uint8_t
 {
-    STARTUP_LOAD = 0,
-    NORMAL_WORK,
-    CONFIGURATION,
-    CLEAR_CONFIG,
+    STARTUP_LOAD,     // Начальная загрузка 
+    NORMAL_WORK,      // Обычная работа
+    CONFIGURATION,    // Настройка прибора    
 };
-
-
-
-enum _SCREEN_CONF_RTC_
-{
-  SCREEN_CONF_HOUR,
-  SCREEN_CONF_MINUTE,
-  SCREEN_CONF_DAY,
-  SCREEN_CONF_DATE,
-  SCREEN_CONF_MONTH,
-  SCREEN_CONF_YEAR
-
-};
-
-enum STAT_CASE
-{
-
-
-};
-
-
-struct tree_node_t
-{
-  int field;           // поле данных
-  struct tree_node_t *left;  // левый потомок
-  struct tree_node_t *right; // правый потомок
-
-};
-
-
 
 void main_loop(void);
 
