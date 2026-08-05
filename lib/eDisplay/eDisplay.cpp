@@ -128,6 +128,11 @@ void eDisplay::periodic(void){
     u8g2_SendBuffer(&_u8g2); 
     memcpy(_prev_buffer, current_buffer, 1024);
 }
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void eDisplay::clear(void)
+{
+    u8g2_ClearBuffer(&_u8g2);
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void eDisplay::show_main_screen(eDS1338& rtc)
@@ -186,5 +191,19 @@ void eDisplay::show_main_screen(eDS1338& rtc)
     u8g2_DrawGlyph(&_u8g2, 75, 62, 69); // Солнце
     u8g2_SetFont(&_u8g2, u8g2_font_6x10_tf);
     u8g2_DrawStr(&_u8g2, 97, 58, civilStr);
+
+}
+
+void eDisplay::show_other_display(void)
+{
+    u8g2_ClearBuffer(&_u8g2);
+    char other_str[] = "OTHER.."; 
+
+    // 1. Меняем шрифт на тот, который поддерживает буквы (без суффикса _tn)
+    u8g2_SetFont(&_u8g2, u8g2_font_fub20_tr); 
+
+    // 2. Используем правильную функцию для вывода стандартных строк
+    u8g2_DrawStr(&_u8g2, 2, 40, other_str); 
+
 
 }

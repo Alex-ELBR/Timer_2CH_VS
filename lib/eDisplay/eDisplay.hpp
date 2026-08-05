@@ -28,6 +28,8 @@ class eDisplay
         void set_max_brightness(void);
         void periodic(void);
         void show_main_screen(eDS1338& rtc);
+        void show_other_display(void);
+        void clear(void);
 
     private:
         I2C_HandleTypeDef *_i2c_bus;
