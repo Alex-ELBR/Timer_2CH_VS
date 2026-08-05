@@ -204,6 +204,5 @@ void eDisplay::show_other_display(void)
 
     // 2. Используем правильную функцию для вывода стандартных строк
     u8g2_DrawStr(&_u8g2, 2, 40, other_str); 
-
-
+    
 }
