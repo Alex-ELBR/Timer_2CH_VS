@@ -198,11 +198,7 @@ void eDisplay::show_other_display(void)
 {
     u8g2_ClearBuffer(&_u8g2);
     char other_str[] = "OTHER.."; 
-
-    // 1. Меняем шрифт на тот, который поддерживает буквы (без суффикса _tn)
     u8g2_SetFont(&_u8g2, u8g2_font_fub20_tr); 
-
-    // 2. Используем правильную функцию для вывода стандартных строк
     u8g2_DrawStr(&_u8g2, 2, 40, other_str); 
     
 }
