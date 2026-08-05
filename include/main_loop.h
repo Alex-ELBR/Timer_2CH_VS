@@ -27,6 +27,18 @@ enum class WorkMode : uint8_t
     CONFIGURATION,    // Настройка прибора    
 };
 
+// Экраны основного режима работы
+enum class ScreensNormalWork : uint8_t
+{
+   MAIN_SCREEN,
+   OTHER_SCREEN,
+
+   //..............
+   COUNT
+};
+
+
+
 void main_loop(void);
 
 

@@ -12,6 +12,32 @@ const uint8_t MAX_COUNT_MENU = 6;
 
 eMenu::Context ctx = { displ, rtc }; 
 
+// Перегрузка ++screen
+ScreensNormalWork& operator++(ScreensNormalWork& screen) {
+    uint8_t next = static_cast<uint8_t>(screen) + 1;
+    
+    // Если вышли за пределы последнего экрана, сбрасываем на первый (0)
+    if (next >= static_cast<uint8_t>(ScreensNormalWork::COUNT)) {
+        screen = static_cast<ScreensNormalWork>(0);
+    } else {
+        screen = static_cast<ScreensNormalWork>(next);
+    }
+    return screen;
+}
+
+// Перегрузка --screen
+ScreensNormalWork& operator--(ScreensNormalWork& screen) {
+    uint8_t current = static_cast<uint8_t>(screen);
+    
+    // Если мы на первом экране (0), декремент переводит на самый последний экран
+    if (current == 0) {
+        screen = static_cast<ScreensNormalWork>(static_cast<uint8_t>(ScreensNormalWork::COUNT) - 1);
+    } else {
+        screen = static_cast<ScreensNormalWork>(current - 1);
+    }
+    return screen;
+}
+
 enum class StartupLoadStep : uint8_t 
 {
     STEP_LOAD_RTC_DATA,
@@ -81,43 +107,19 @@ void main_loop(void)
     /************************************************/
         case WorkMode::NORMAL_WORK:
         {
-            static uint8_t screen = 0;
+            static ScreensNormalWork screen = ScreensNormalWork::MAIN_SCREEN;
+
             switch (screen)
             {
-                case 0:
+                case ScreensNormalWork::MAIN_SCREEN:
                 {
                     displ.show_main_screen(rtc);
                 };break;
 
-                case 1:
+                case ScreensNormalWork::OTHER_SCREEN:
                 {
-
+                    displ.clear();
                 };break;   
-
-                case 2:
-                {
-                    
-                };break;
-
-                case 3:
-                {
-
-                };break;  
-
-                case 4:
-                {
-
-                };break;
-
-                case 5:
-                {
-
-                };break;
-                
-                case 6:
-                {
-
-                };break;
 
                 default:{ break; }
             }
@@ -126,14 +128,12 @@ void main_loop(void)
             {
                 case eButton::PRESS_UP:
                 {
-                    if(screen < MAX_COUNT_MENU) ++screen;
-                    else screen = 0;
+                    ++screen;
                 };break;
 
                 case eButton::PRESS_DOWN:
                 {
-                    if(screen > 0) --screen;
-                    else screen = MAX_COUNT_MENU;
+                    --screen;
                 };break;
 
                 case eButton::PRESS_OK:
@@ -143,7 +143,7 @@ void main_loop(void)
 
                 case eButton::PRESS_CANCEL:
                 {
-                    screen = 0;
+                    screen = ScreensNormalWork::MAIN_SCREEN;
                 };break;
 
                 default: break;
