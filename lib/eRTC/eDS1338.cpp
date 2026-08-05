@@ -1,7 +1,39 @@
 #include "eDS1338.hpp"
+#include <math.h>  
+#include <type_traits>
 
-template <typename T, typename OP> 
-void change_operation(T &ptr_param, OP op, int16_t limit_min, int16_t limit_max);
+
+namespace 
+{
+    auto change_operation = [](auto&& param, auto op, const auto limit_min, const auto limit_max){
+
+        using namespace nDS1338;        
+        using ParamType = std::remove_reference_t<decltype(param)>;
+        
+        if constexpr (std::is_same_v<ParamType, bool>) // Проверяем, является ли param типом bool
+        {
+            if (op == TypeOp::PLUS || op == TypeOp::MINUS) { param = !param; }
+        } 
+        else 
+        {
+            switch(op)
+            {
+                case TypeOp::PLUS:
+                    if (param < limit_max) { ++param; } 
+                    else { param = limit_min; }
+                    break;
+
+                case TypeOp::MINUS:
+                    if (param > limit_min && param <= limit_max) { --param; } 
+                    else { param = limit_max; }
+                    break;
+
+                default: 
+                    break;
+            }
+        }
+    };
+}
 
 // Конвертация: обычное число (HEX) -> двоично-десятичное (BCD)
 static inline uint8_t rtc_dec_to_bcd(uint8_t val) {
@@ -71,6 +103,9 @@ HAL_StatusTypeDef eDS1338::periodic(void)
     _real_time.sec_only_day = ((uint32_t)(_real_time.hour) * 3600) + ((uint32_t)(_real_time.minute) * 60) + ((uint32_t)(_real_time.second));
     _real_time.sec_week = ((uint32_t)(_real_time.day) * 86400) + ((uint32_t)(_real_time.hour) * 3600) + ((uint32_t)(_real_time.minute) * 60) + ((uint32_t)(_real_time.second));
 
+    TwilightResult civil = calculate_twilight(_real_time.unix_time, _real_time.latitude, _real_time.longitude, _real_time.time_zone, TwilightType::Civil);
+    _real_time.twilight_rise = civil.start_time;
+    _real_time.twilight_set = civil.end_time;
     
     return HAL_OK;
 }
@@ -280,48 +315,54 @@ uint32_t eDS1338::get_sec_week(void) { return _real_time.sec_week; }
 int16_t eDS1338::get_longitude_degree(void)
 {
     int16_t degree = 0;
-    float_to_dms(_real_time.longitude, &degree, nullptr, nullptr);
+    uint8_t minute = 0, second = 0;
+    float_to_dms(_real_time.longitude, &degree, &minute, &second);
     return degree;
 }
 
 int16_t eDS1338::get_longitude_min(void)
 {
-    uint8_t minute = 0;
-    float_to_dms(_real_time.longitude, nullptr, &minute, nullptr);
-    return minute;
+    int16_t degree = 0;
+    uint8_t minute = 0, second = 0;
+    float_to_dms(_real_time.longitude, &degree, &minute, &second);
+    return static_cast<int16_t>(minute);
 }
 
 int16_t eDS1338::get_longitude_sec(void)
 {
-    uint8_t second = 0;
-    float_to_dms(_real_time.longitude, nullptr, &second, nullptr);
-    return second;
+    int16_t degree = 0;
+    uint8_t minute = 0, second = 0;
+    float_to_dms(_real_time.longitude, &degree, &minute, &second);
+    return static_cast<int16_t>(second);
 }
 //////////////////
 int16_t eDS1338::get_latitude_degree(void)
 {
     int16_t degree = 0;
-    float_to_dms(_real_time.latitude, &degree, nullptr, nullptr);
+    uint8_t minute = 0, second = 0;
+    float_to_dms(_real_time.latitude, &degree, &minute, &second);
     return degree;
 }
 
 int16_t eDS1338::get_latitude_min(void)
 {
-    uint8_t minute = 0;
-    float_to_dms(_real_time.latitude, nullptr, &minute, nullptr);
-    return minute;
+    int16_t degree = 0;
+    uint8_t minute = 0, second = 0;
+    float_to_dms(_real_time.latitude, &degree, &minute, &second);
+    return static_cast<int16_t>(minute);
 }
 
 int16_t eDS1338::get_latitude_sec(void)
 {
-    uint8_t second = 0;
-    float_to_dms(_real_time.latitude, nullptr, nullptr, &second);
-    return second;
+    int16_t degree = 0;
+    uint8_t minute = 0, second = 0;
+    float_to_dms(_real_time.latitude, &degree, &minute, &second);
+    return static_cast<int16_t>(second);
 }
 
 int16_t eDS1338::get_timezone(void){ 
 
-    return (uint16_t)_real_time.time_zone;
+    return static_cast<int16_t>(_real_time.time_zone);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -345,37 +386,42 @@ void eDS1338::get_civil_dusk(uint8_t &hour, uint8_t &minute) // Конец ве�
 /********************************************************************************************************* */
 static inline float dms_to_float(int16_t deg, uint8_t min, uint8_t sec)
 {
+    // Защита от некорректных значений из памяти/шумов шины
+    if (min >= 60) min = 59;
+    if (sec >= 60) sec = 59;
+
     float decimal = (float)deg;
     float fractional = ((float)min / 60.0f) + ((float)sec / 3600.0f);
-    // Если градусы отрицательные, дробную часть нужно вычесть
-    if (deg < 0) { return decimal - fractional; }
+    
+    // Если deg строго отрицательный
+    if (deg < 0) { 
+        return decimal - fractional; 
+    }
+    
+    // ВНИМАНИЕ: Если deg == 0, этот код всегда вернет ПОЛОЖИТЕЛЬНЫЙ float.
     return decimal + fractional;
 }
 
+
+
 static inline void float_to_dms(float decimal, int16_t *deg, uint8_t *min, uint8_t *sec)
 {
-    // 1. Выделяем знак (проверяем, отрицательные ли градусы)
-    int sign = (decimal < 0.0f) ? -1 : 1;
+    // 1. Защита от выхода за критические границы Земных координат (Saturate)
+    if (decimal > 180.0f)  decimal = 180.0f;
+    if (decimal < -180.0f) decimal = -180.0f;
+
+    // 2. Работаем с абсолютным значением для вычисления минут и секунд
+    float abs_decimal = fabsf(decimal);
     
-    // Работаем с абсолютным (положительным) значением для удобства расчета
-    if (decimal < 0.0f) { decimal = -decimal; }
+    int16_t d = (int16_t)abs_decimal;
     
-    // 2. Получаем целую часть градусов
-    int16_t d = (int16_t)decimal;
-    
-    // Находим остаток после градусов и переводим в минуты
-    float fractional_min = (decimal - (float)d) * 60.0f;
-    
-    // 3. Получаем целую часть минут
+    float fractional_min = (abs_decimal - (float)d) * 60.0f;
     uint8_t m = (uint8_t)fractional_min;
     
-    // Находим остаток после минут и переводим в секунды (с округлением)
     float fractional_sec = (fractional_min - (float)m) * 60.0f;
+    uint8_t s = (uint8_t)(fractional_sec + 0.5f); // Округление
     
-    // 4. Округляем секунды до ближайшего целого
-    uint8_t s = (uint8_t)(fractional_sec + 0.5f);
-    
-    // Защита от переполнения при округлении секунды (например, если вышло 60 секунд)
+    // 3. Защита от каскадного переполнения при округлении секунд (например, 59.99")
     if (s >= 60) {
         s = 0;
         m++;
@@ -384,12 +430,23 @@ static inline void float_to_dms(float decimal, int16_t *deg, uint8_t *min, uint8
             d++;
         }
     }
+
+    // Дополнительный барьер для d после округления секунд вверх
+    if (d > 180) d = 180;
     
-    // 5. Возвращаем результаты (возвращаем исходный знак градусам)
-    *deg = d * sign;
+    // 4. Возвращаем исходный знак. 
+    // Если исходный float был отрицательным, делаем deg отрицательным.
+    if (copysignf(1.0f, decimal) < 0.0f) {
+        *deg = -d; 
+    } else {
+        *deg = d;
+    }
+    
     *min = m;
     *sec = s;
 }
+
+
 
 /******************************************************************************************************** */
 /*************************************************************************/
@@ -484,28 +541,6 @@ uint8_t eDS1338::is_leap_year(int16_t year)
 }
 
 
-/*** служебные функции ***********************************************************************************/
-template <typename T, typename OP> 
-void change_operation(T &ptr_param, OP op, int16_t limit_min, int16_t limit_max)
-{
-    using namespace nDS1338;
 
-    switch(op)
-    {
-        case TypeOp::PLUS:
-        {
-            if((ptr_param) < limit_max) ++(ptr_param);
-            else (ptr_param) = limit_min;
-        }; break;
-
-        case TypeOp::MINUS:
-        {
-            if((ptr_param) > limit_min) --(ptr_param);
-            else (ptr_param) = limit_max;
-        }; break;
-
-        default: break;
-    }
-}
 
 

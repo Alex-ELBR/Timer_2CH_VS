@@ -12,7 +12,7 @@
 class eButton
 {
     public:
-        enum ButtonNumber : uint16_t 
+        enum class ButtonNumber : uint16_t 
         {
             NOT_PRESSED,     
             PRESS_CANCEL,        
@@ -23,15 +23,15 @@ class eButton
             PRESS_OK_CANCEL        
         };
         
-        using pressed_but_t = ButtonNumber;
+        //using pressed_but_t = ButtonNumber;
 
     public:
         eButton();
         void button_update(void);
-        pressed_but_t get_button(void);
+        ButtonNumber get_button(void);
 
     private:
-        pressed_but_t pressed_but;
+        ButtonNumber pressed_but;
         uint32_t comp;
 
 };

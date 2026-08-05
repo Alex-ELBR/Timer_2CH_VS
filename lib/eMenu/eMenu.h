@@ -20,6 +20,8 @@
 class eDisplay; 
 class eDS1338;
 
+using Button = eButton::ButtonNumber;
+
 class eMenu 
 {
     public:
@@ -31,7 +33,7 @@ class eMenu
         };
 
         // Сигнатуры функций теперь строго используют типы из eButton
-        using MenuActionFunc = bool(*)(eButton::pressed_but_t button, Context& ctx);
+        using MenuActionFunc = bool(*)(Button button, Context& ctx);
         using MenuInitFunc   = void(*)(Context& ctx);
         using MenuTextFunc   = void(*)(Context& ctx); // Функция для отрисовки динамических значений
 
@@ -52,7 +54,7 @@ class eMenu
         void reset();
 
         // Главный метод обработки логики
-        bool process(eButton::pressed_but_t button, Context& ctx);
+        bool process(Button button, Context& ctx);
 
     private:
         const Item* m_items;

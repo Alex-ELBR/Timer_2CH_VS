@@ -24,18 +24,13 @@ static int get_day_of_year(uint32_t unix_time) {
     return rem_days + 1;
 }
 
-TwilightResult calculate_twilight(uint32_t unix_time, int32_t lat_scaled, int32_t lon_scaled, int16_t tz_offset_scaled, TwilightType type) 
+TwilightResult calculate_twilight(uint32_t unix_time, float latitude, float longitude, float time_zone, TwilightType type)
 {
     TwilightResult result = {0, 0, false, false, false};
     
     int N = get_day_of_year(unix_time);
     
-    // Переводим входные масштабированные координаты (5575 -> 55.75) в обычный float
-    float lat = (float)lat_scaled / 100.0f;
-    float lon = (float)lon_scaled / 100.0f;
-
-    // Переводим часовой пояс (300 -> 3.0 часа -> в минуты)
-    float tz_minutes = ((float)(tz_offset_scaled / 100) * 60.0f) + (float)(tz_offset_scaled % 100);
+    float tz_minutes = time_zone * 60.0f;    
 
     // Угол зенита солнца в градусах
     float zenith = 90.8333f; 
@@ -58,10 +53,10 @@ TwilightResult calculate_twilight(uint32_t unix_time, int32_t lat_scaled, int32_
 
     // 2. Вычисление часового угла H
     float zenith_rad = zenith * DEG_TO_RAD;
-    float lat_rad = lat * DEG_TO_RAD;
+    float lat_rad = latitude * DEG_TO_RAD;
     float dec_rad = dec * DEG_TO_RAD;
 
-    // cos(H) = (cos(zenith) - sin(lat)*sin(dec)) / (cos(lat)*cos(dec))
+    // cos(H) = (cos(zenith) - sin(latitude)*sin(dec)) / (cos(latitude)*cos(dec))
     float cosH = (cosf(zenith_rad) - sinf(lat_rad) * sinf(dec_rad)) / (cosf(lat_rad) * cosf(dec_rad));
 
     // Проверка на полярный день или полярную ночь
@@ -85,7 +80,7 @@ TwilightResult calculate_twilight(uint32_t unix_time, int32_t lat_scaled, int32_
 
     // 3. Находим истинный полдень (Solar Noon) в минутах от начала суток
     // 720 минут = 12 часов. Вычитаем долготу (4 минуты на градус)
-    float solar_noon_minutes = 720.0f - (lon * 4.0f) - eot + tz_minutes;
+    float solar_noon_minutes = 720.0f - (longitude * 4.0f) - eot + tz_minutes;
 
     // 4. Расчет финального времени в минутах от начала суток
     float sunrise_minutes = solar_noon_minutes - H_minutes;
